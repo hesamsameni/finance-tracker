@@ -1,92 +1,91 @@
 <template>
-<div>
-  <div v-if="loading" class="py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100">
-    <USkeleton class="h-8 w-full"  />
-  </div>
-  <div v-else
-    class="grid grid-cols-2 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
-  >
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <UIcon name="i-heroicons-arrow-up-right" class="text-green-600" />
-        <div class="flex items-center space-x-1">
-          <div>{{ formatTitle(transaction.type) }}</div>
-          <div class="text-xs font-light text-gray-400">
-            ({{ formatTitle(transaction.description) }})
+  <div>
+    <div
+      v-if="loading"
+      class="py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+    >
+      <USkeleton class="h-8 w-full" />
+    </div>
+    <div
+      v-else
+      class="grid grid-cols-3 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+    >
+      <div class="flex items-center justify-between space-x-4 col-span-2">
+        <div class="flex items-center space-x-2">
+          <UIcon name="i-heroicons-arrow-up-right" class="text-green-600" />
+          <div class="flex items-center space-x-1">
+            <div>{{ formatTitle(transaction.description) }}</div>
           </div>
         </div>
+        <div>
+          <UBadge color="white">Bills</UBadge>
+        </div>
       </div>
-      <div>
-        <UBadge color="white">Bills</UBadge>
-        <UBadge color="white">Grocerries</UBadge>
-        <UBadge color="white">Rent</UBadge>
-      </div>
-    </div>
-    <div class="flex items-center justify-end">
-      <div>{{ currency }}</div>
-      <div>
-        <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
-          <UButton
-            color="white"
-            variant="ghost"
-            trailing-icon="i-heroicons-ellipsis-horizontal"
-            :loading="isLoading"
-          />
-        </UDropdown>
+      <div class="flex items-center justify-end">
+        <div>{{ currency }}</div>
+        <div>
+          <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+            <UButton
+              color="white"
+              variant="ghost"
+              trailing-icon="i-heroicons-ellipsis-horizontal"
+              :loading="isLoading"
+            />
+          </UDropdown>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script setup>
 const props = defineProps({
   transaction: Object,
-  loading: Boolean
+  loading: Boolean,
 });
 const { currency } = useCurrency(props.transaction.amount);
-const toast = useToast()
-const emit = defineEmits(['deleted']);
-const isLoading = ref(false)
-const supabase = useSupabaseClient()
-const deteleTransaction = async() => {
+const toast = useToast();
+const emit = defineEmits(["deleted"]);
+const isLoading = ref(false);
+const supabase = useSupabaseClient();
+const deteleTransaction = async () => {
   isLoading.value = true;
 
   try {
     const { error } = await supabase
-      .from('transactions')
+      .from("transactions")
       .delete()
-      .eq('id', props.transaction.id);
+      .eq("id", props.transaction.id);
 
     if (error) {
       toast.add({
-        title: 'Something Happened!',
+        title: "Something Happened!",
         description: error.message,
-        icon: 'i-heroicons-exclamation-circle',
-        color: 'red',
+        icon: "i-heroicons-exclamation-circle",
+        color: "red",
         timeout: 0,
       });
     } else {
       toast.add({
-        title: 'Transaction Deleted',
-        icon: 'i-heroicons-check-circle',
-        color: 'green',
+        title: "Transaction Deleted",
+        icon: "i-heroicons-check-circle",
+        color: "green",
         timeout: 4000,
       });
-      emit('deleted', props.transaction.id);
+      emit("deleted", props.transaction.id);
     }
   } catch (exception) {
     toast.add({
-      title: 'Unexpected Error!',
+      title: "Unexpected Error!",
       description: exception.message,
-      icon: 'i-heroicons-exclamation-circle',
-      color: 'red',
+      icon: "i-heroicons-exclamation-circle",
+      color: "red",
       timeout: 0,
     });
   } finally {
     isLoading.value = false;
   }
-}
+};
 
 const items = [
   [
@@ -97,7 +96,7 @@ const items = [
     {
       label: "Delete",
       icon: "i-heroicons-trash-20-solid",
-      click: deteleTransaction
+      click: deteleTransaction,
     },
   ],
 ];
