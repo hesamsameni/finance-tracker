@@ -48,7 +48,7 @@
       </div>
     </div>
     <div>
-      <TransactionModal v-model="isOpen" />
+      <TransactionModal v-model="isOpen" @saved="refreshTransactions()" />
 
       <UButton
         icon="i-heroicons-plus-circle"
@@ -111,7 +111,10 @@ const fetchTransactions = async () => {
 
   try {
     const { data } = await useAsyncData("transactions", async () => {
-      const { data, error } = await supabase.from("transactions").select(); // Query transactions table
+      const { data, error } = await supabase
+        .from("transactions")
+        .select()
+        .order("created_at", { ascending: false });
       if (error) return []; // Return an empty array if there's an error
       return data; // Return the fetched data
     });
@@ -141,6 +144,12 @@ const transactionGroupedByDate = computed(() => {
 
     grouped[date].push(transaction); // Add the transaction to the corresponding date group
   }
+
+  // const sortedKeys = Object.keys(grouped).sort().reverse();
+  // const sortedGrouped = {};
+  // for (const key of sortedKeys) {
+  //   sortedGrouped[key] = grouped[key];
+  // }
 
   return grouped; // Return the grouped transactions
 });

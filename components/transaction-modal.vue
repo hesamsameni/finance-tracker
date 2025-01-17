@@ -2,7 +2,7 @@
   <UModal v-model="isOpen">
     <UCard>
       <template #header> Add Transaction </template>
-      <UForm :state="state" :schema="schema" ref="form" @submit="save">
+      <UForm :state="state" :schema="schema" ref="form">
         <UFormGroup
           label="Paid by"
           :required="true"
@@ -34,17 +34,12 @@
           />
         </UFormGroup>
 
-        <UFormGroup
-          label="Date"
-          :required="true"
-          name="created_at"
-          class="mb-5"
-        >
+        <UFormGroup label="Date" :required="true" name="date" class="mb-5">
           <UInput
             type="date"
             placeholder="Select the date"
             icon="i-heroicons-calendar-days-20-solid"
-            v-model="state.created_at"
+            v-model="state.date"
           />
         </UFormGroup>
 
@@ -66,12 +61,22 @@
           :required="true"
           name="category"
           class="mb-5"
-          v-model="state.category"
         >
-          <USelect :options="categories" placeholder="Category" />
+          <USelect
+            :options="categories"
+            placeholder="Category"
+            v-model="state.category"
+          />
         </UFormGroup>
 
-        <UButton type="submit" color="black" variant="solid" label="Save" />
+        <UButton
+          type="submit"
+          color="black"
+          variant="solid"
+          label="Save"
+          @click="saveForm"
+          :loading="isLoading"
+        />
       </UForm>
     </UCard>
   </UModal>
@@ -79,25 +84,75 @@
 
 <script setup>
 import { categories, household_users } from "~/constants";
+import { z } from "zod"; // Import Zod for schema validation
 
+// Define props for the component
 const props = defineProps({
   modelValue: Boolean,
 });
 
-const state = ref({
+const form = ref();
+const isLoading = ref(false);
+const supabase = useSupabaseClient();
+const toast = useToast();
+// Reactive state to store form data
+const initialState = ref({
   paid_by: undefined,
   title: undefined,
   amount: 0,
-  created_at: new Date().toISOString().split("T")[0],
+  date: undefined,
   description: undefined,
   category: undefined,
   currency: "eur",
+  created_at: new Date().toISOString().split("T")[0],
+  household_id: "56",
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const state = ref({ ...initialState.value });
+
+// Schema for validating form data using Zod
+const schema = z.object({
+  title: z.string(), // Title must be a string
+  amount: z.number().positive("Enter a valid amount!"), // Amount must be a positive number
+  date: z.string(), // Date must be a string
+});
+
+const saveForm = async () => {
+  console.log("asdasdas");
+  if (form.value.errors.length) return;
+
+  isLoading.value = true;
+  try {
+    const { error } = await supabase
+      .from("household_transactions")
+      .upsert({ ...state.value });
+    if (!error) {
+      toast.add({
+        title: "Transaction saved",
+      });
+      isOpen.value = false;
+      emit("saved");
+    }
+  } catch (e) {
+    toast.add({
+      title: "Something went wrong!",
+      description: e.message,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Emit an event to sync the modelValue with the parent component
+const emit = defineEmits(["update:modelValue", "saved"]);
+const resetForm = () => {
+  Object.assign(state.value, initialState);
+  form.value.clear();
+};
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => {
+    if (!value) resetForm();
     emit("update:modelValue", value);
   },
 });
