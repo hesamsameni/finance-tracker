@@ -1,6 +1,6 @@
 <template>
   <section class="flex items-center justify-between mb-10">
-    <h1 class="text-4xl font-extrabold">Household #56</h1>
+    <h1 class="text-4xl font-extrabold">Household #{{ householdId }}</h1>
     <div>
       <USelectMenu v-model="selectedView" :options="transactionViewOptions" />
     </div>
@@ -14,14 +14,14 @@
       title="Hesam"
       :amount="incomeTotal"
       :last-amount="prevIncomeTotal"
-      :loading="isLoading"
+      :loading="pending"
     />
     <Trend
       color="green"
       title="Elnaz"
       :amount="expenseTotal"
       :last-amount="prevExpenseTotal"
-      :loading="isLoading"
+      :loading="pending"
     />
   </section>
 
@@ -30,7 +30,7 @@
       <h2 class="text-2xl font-extrabold">Add new expense</h2>
     </div>
     <div>
-      <TransactionModal v-model="isOpen" @saved="refreshTransactions()" />
+      <TransactionModal v-model="isOpen" @saved="refresh($route.params.id)" />
 
       <UButton
         icon="i-heroicons-plus-circle"
@@ -42,14 +42,14 @@
     </div>
   </section>
 
-  <section v-if="!isLoading">
-    <Transaction
-      v-for="transaction in transactions"
-      :key="transaction.id"
-      :transaction="transaction"
-      :loading="isLoading"
-      @deleted="refreshTransactions()"
-    />
+  <section v-if="!pending">
+    <div v-for="expense in expenses" :key="expense.id" class="mb-10">
+      <Transaction
+        :transaction="expense"
+        :loading="pending"
+        @deleted="refresh($route.params.id)"
+      />
+    </div>
   </section>
   <section v-else>
     <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
@@ -60,77 +60,17 @@
 import { transactionViewOptions } from "~/constants";
 
 // Reactive variables
-const selectedView = ref(transactionViewOptions[2]); // Default selected view option
-const supabase = useSupabaseClient(); // Initializing the Supabase client
-const transactions = ref([]); // Reactive array to hold transactions
-const isLoading = ref(false); // Reactive boolean to indicate loading state
+const selectedView = ref(transactionViewOptions[1]); // Default selected view option
 const isOpen = ref(false);
 const route = useRoute();
 const householdId = route.params.id;
-/**
- * Fetches transactions from the database and refreshes the local list.
- */
-const refreshTransactions = async () => {
-  transactions.value = await fetchTransactions(); // Update transactions after fetching
-};
 
-/**
- * Fetches transactions from the database.
- * @returns {Array} An array of transactions fetched from the Supabase database.
- */
-const fetchTransactions = async () => {
-  isLoading.value = true; // Set loading state to true while fetching
+const { dates } = useSelectedTimePeriod(selectedView);
 
-  try {
-    const { data } = await useAsyncData(
-      "temp_household_transactions",
-      async () => {
-        const { data, error } = await supabase
-          .from("temp_household_transactions")
-          .select()
-          .eq("household_id", householdId)
-          .order("date", { ascending: false });
-        if (error) return []; // Return an empty array if there's an error
-        return data; // Return the fetched data
-      }
-    );
-
-    return data.value; // Return the resolved data
-  } finally {
-    isLoading.value = false; // Reset loading state after fetch attempt
-  }
-};
-
-// Immediately refresh transactions on component setup
-await refreshTransactions();
-
-/**
- * Computed property to filter transactions of type "income".
- * @returns {Array} An array of transactions where type is "income".
- */
-const incomeTransactions = computed(() => {
-  return transactions.value.filter(
-    (transaction) => transaction.paid_by === "Hesam"
-  );
-});
-
-const incomeTotal = computed(() => {
-  return incomeTransactions.value.reduce(
-    (acc, current) => acc + current.amount,
-    0
-  );
-});
-
-const expenseTransactions = computed(() => {
-  return transactions.value.filter(
-    (transaction) => transaction.paid_by === "Elnaz"
-  );
-});
-
-const expenseTotal = computed(() => {
-  return expenseTransactions.value.reduce(
-    (acc, current) => acc + current.amount,
-    0
-  );
-});
+const {
+  pending,
+  refresh,
+  expenses: { all: expenses, incomeTotal, expenseTotal },
+} = useFetchHouseholdExpenses(dates, householdId);
+await refresh(householdId);
 </script>
