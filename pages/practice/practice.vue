@@ -1,6 +1,6 @@
 <template>
   <section class="flex items-center justify-between mb-10">
-    <h1 class="text-4xl font-extrabold">Household #56</h1>
+    <h1 class="text-4xl font-extrabold">House of Hesam</h1>
     <div>
       <USelectMenu v-model="selectedView" :options="transactionViewOptions" />
     </div>
@@ -11,23 +11,41 @@
   >
     <Trend
       color="green"
-      title="Hesam"
+      title="Income"
       :amount="incomeTotal"
       :last-amount="prevIncomeTotal"
       :loading="isLoading"
     />
     <Trend
-      color="green"
-      title="Elnaz"
+      color="red"
+      title="Expense"
       :amount="expenseTotal"
       :last-amount="prevExpenseTotal"
+      :loading="isLoading"
+    />
+    <Trend
+      color="green"
+      title="Investments"
+      :amount="4000"
+      :last-amount="3000"
+      :loading="isLoading"
+    />
+    <Trend
+      color="red"
+      title="Saving"
+      :amount="4000"
+      :last-amount="4100"
       :loading="isLoading"
     />
   </section>
 
   <section class="flex justify-between mb-10">
     <div>
-      <h2 class="text-2xl font-extrabold">Add new expense</h2>
+      <h2 class="text-2xl font-extrabold">Transactions</h2>
+      <div class="text-gray-500 dark:text-gray-400">
+        You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this
+        period
+      </div>
     </div>
     <div>
       <TransactionModal v-model="isOpen" @saved="refreshTransactions()" />
@@ -43,13 +61,24 @@
   </section>
 
   <section v-if="!isLoading">
-    <Transaction
-      v-for="transaction in transactions"
-      :key="transaction.id"
-      :transaction="transaction"
-      :loading="isLoading"
-      @deleted="refreshTransactions()"
-    />
+    <div
+      v-for="(transactionsOfTheDay, date) in transactionGroupedByDate"
+      :key="date"
+      class="mb-10"
+    >
+      <DailyTransactionSummary
+        :date="date"
+        :loading="isLoading"
+        :transactions="transactionsOfTheDay"
+      />
+      <Transaction
+        v-for="transaction in transactionsOfTheDay"
+        :key="transaction.id"
+        :transaction="transaction"
+        :loading="isLoading"
+        @deleted="refreshTransactions()"
+      />
+    </div>
   </section>
   <section v-else>
     <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
@@ -81,17 +110,14 @@ const fetchTransactions = async () => {
   isLoading.value = true; // Set loading state to true while fetching
 
   try {
-    const { data } = await useAsyncData(
-      "temp_household_transactions",
-      async () => {
-        const { data, error } = await supabase
-          .from("temp_household_transactions")
-          .select()
-          .order("date", { ascending: false });
-        if (error) return []; // Return an empty array if there's an error
-        return data; // Return the fetched data
-      }
-    );
+    const { data } = await useAsyncData("transactions", async () => {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select()
+        .order("created_at", { ascending: false });
+      if (error) return []; // Return an empty array if there's an error
+      return data; // Return the fetched data
+    });
 
     return data.value; // Return the resolved data
   } finally {
@@ -103,15 +129,42 @@ const fetchTransactions = async () => {
 await refreshTransactions();
 
 /**
+ * Computed property to group transactions by their creation date.
+ * @returns {Object} An object where keys are dates and values are arrays of transactions for that date.
+ */
+const transactionGroupedByDate = computed(() => {
+  const grouped = {}; // Object to hold grouped transactions
+
+  for (const transaction of transactions.value) {
+    const date = new Date(transaction.created_at).toISOString().split("T")[0]; // Extract the date part
+
+    if (!grouped[date]) {
+      grouped[date] = []; // Initialize an empty array if the date group doesn't exist
+    }
+
+    grouped[date].push(transaction); // Add the transaction to the corresponding date group
+  }
+
+  // const sortedKeys = Object.keys(grouped).sort().reverse();
+  // const sortedGrouped = {};
+  // for (const key of sortedKeys) {
+  //   sortedGrouped[key] = grouped[key];
+  // }
+
+  return grouped; // Return the grouped transactions
+});
+
+/**
  * Computed property to filter transactions of type "income".
  * @returns {Array} An array of transactions where type is "income".
  */
 const incomeTransactions = computed(() => {
   return transactions.value.filter(
-    (transaction) => transaction.paid_by === "Hesam"
+    (transaction) => transaction.type === "income"
   );
 });
 
+const incomeCount = computed(() => incomeTransactions.value.length);
 const incomeTotal = computed(() => {
   return incomeTransactions.value.reduce(
     (acc, current) => acc + current.amount,
@@ -119,12 +172,17 @@ const incomeTotal = computed(() => {
   );
 });
 
+/**
+ * Computed property to filter transactions of type "expense".
+ * @returns {Array} An array of transactions where type is "expense".
+ */
 const expenseTransactions = computed(() => {
   return transactions.value.filter(
-    (transaction) => transaction.paid_by === "Elnaz"
+    (transaction) => transaction.type === "expense"
   );
 });
 
+const expenseCount = computed(() => expenseTransactions.value.length);
 const expenseTotal = computed(() => {
   return expenseTransactions.value.reduce(
     (acc, current) => acc + current.amount,
