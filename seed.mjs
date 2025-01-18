@@ -43,7 +43,7 @@ const seedDatabase = async () => {
           "Bills",
         ]), // Random category
         currency: "eur",
-        household_id: "56",
+        household_id: "2",
       });
     }
   }

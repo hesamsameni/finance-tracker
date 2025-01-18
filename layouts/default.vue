@@ -1,13 +1,21 @@
 <template>
-  <div class="container mx-auto max-w-4xl">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
     <AppHeader />
+
     <main class="my-10">
-      <slot />
+      <div class="grid grid-cols-12 gap-10">
+        <div class="col-span-2">
+          <AppSidebar />
+        </div>
+        <div class="col-span-8">
+          <slot />
+        </div>
+      </div>
     </main>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 // Link to Google Fonts
 useHead({
   link: [
@@ -23,8 +31,8 @@ useHead({
   ],
 });
 </script>
-  
-  <style>
+
+<style>
 /* Set the font family for the entire site */
 body {
   font-family: "Roboto";

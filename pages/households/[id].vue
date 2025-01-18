@@ -65,7 +65,8 @@ const supabase = useSupabaseClient(); // Initializing the Supabase client
 const transactions = ref([]); // Reactive array to hold transactions
 const isLoading = ref(false); // Reactive boolean to indicate loading state
 const isOpen = ref(false);
-
+const route = useRoute();
+const householdId = route.params.id;
 /**
  * Fetches transactions from the database and refreshes the local list.
  */
@@ -87,6 +88,7 @@ const fetchTransactions = async () => {
         const { data, error } = await supabase
           .from("temp_household_transactions")
           .select()
+          .eq("household_id", householdId)
           .order("date", { ascending: false });
         if (error) return []; // Return an empty array if there's an error
         return data; // Return the fetched data
