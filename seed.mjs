@@ -18,7 +18,7 @@ const seedDatabase = async () => {
   // Generate random dates for the past two years
   for (
     let year = new Date().getFullYear();
-    year > new Date().getFullYear() - 2;
+    year > new Date().getFullYear() - 1;
     year--
   ) {
     for (let i = 0; i < 10; i++) {
@@ -30,23 +30,28 @@ const seedDatabase = async () => {
 
       // Add a row to the data array
       rows.push({
+        paid_by: faker.helpers.arrayElement(["Hesam", "Elnaz"]), // Random type
+        title: faker.lorem.word(),
         amount: faker.number.int({ min: 10, max: 1000 }), // Random amount
-        created_at: date.toISOString(), // Format the date as ISO string
+        date: date.toISOString().split("T")[0], // Format the date as ISO string
+        description: faker.lorem.sentence(), // Random description
         category: faker.helpers.arrayElement([
           "Groceries",
           "Rent",
           "Utilities",
-          "Entertainment",
-          "Transportation",
+          "Eating out",
+          "Bills",
         ]), // Random category
-        type: faker.helpers.arrayElement(["Income", "Expense"]), // Random type
-        description: faker.lorem.sentence(), // Random description
+        currency: "eur",
+        household_id: "56",
       });
     }
   }
 
   try {
-    const { data, error } = await supabase.from("transactions").insert(rows); // Replace 'transactions' with your table name
+    const { data, error } = await supabase
+      .from("household_transactions")
+      .insert(rows);
 
     // Improved error handling and logging
     if (error) {
