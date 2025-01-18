@@ -34,12 +34,17 @@
           />
         </UFormGroup>
 
-        <UFormGroup label="Date" :required="true" name="date" class="mb-5">
+        <UFormGroup
+          label="Date"
+          :required="true"
+          name="purchase_date"
+          class="mb-5"
+        >
           <UInput
             type="date"
             placeholder="Select the date"
             icon="i-heroicons-calendar-days-20-solid"
-            v-model="state.date"
+            v-model="state.purchase_date"
           />
         </UFormGroup>
 
@@ -100,12 +105,12 @@ const initialState = ref({
   paid_by: undefined,
   title: undefined,
   amount: 0,
-  date: undefined,
+  purchase_date: undefined,
   description: undefined,
   category: undefined,
   currency: "eur",
   created_at: new Date().toISOString().split("T")[0],
-  household_id: "56",
+  household_id: "1",
 });
 
 const state = ref({ ...initialState.value });
@@ -118,13 +123,12 @@ const schema = z.object({
 });
 
 const saveForm = async () => {
-  console.log("asdasdas");
   if (form.value.errors.length) return;
 
   isLoading.value = true;
   try {
     const { error } = await supabase
-      .from("household_transactions")
+      .from("temp_household_transactions")
       .upsert({ ...state.value });
     if (!error) {
       toast.add({
