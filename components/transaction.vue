@@ -26,7 +26,7 @@
         <div>
           <UBadge color="white">{{ transaction.category }}</UBadge>
         </div>
-        <div>{{ transaction.date }}</div>
+        <div>{{ transaction.purchase_date }}</div>
       </div>
       <div class="flex items-center justify-end">
         <div>{{ currency }}</div>
@@ -60,7 +60,7 @@ const deteleTransaction = async () => {
 
   try {
     const { error } = await supabase
-      .from("household_transactions")
+      .from("temp_household_transactions")
       .delete()
       .eq("id", props.transaction.id);
 
