@@ -8,18 +8,25 @@
     </div>
     <div
       v-else
-      class="grid grid-cols-3 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+      class="grid grid-cols-5 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
     >
-      <div class="flex items-center justify-between space-x-4 col-span-2">
-        <div class="flex items-center space-x-2">
-          <UIcon name="i-heroicons-arrow-up-right" class="text-green-600" />
-          <div class="flex items-center space-x-1">
-            <div>{{ formatTitle(transaction.description) }}</div>
+      <div class="flex items-center justify-between space-x-4 col-span-4">
+        <div class="flex items-center space-x-5">
+          <UAvatar
+            src="https://avatars.githubusercontent.com/u/739984?v=4"
+            alt="Avatar"
+          />
+          <div class="flex items-center space-x-5">
+            <div>{{ formatTitle(transaction.title) }}</div>
           </div>
         </div>
-        <div>
-          <UBadge color="white">Bills</UBadge>
+        <div class="text-left">
+          <div>{{ formatTitle(transaction.paid_by) }}</div>
         </div>
+        <div>
+          <UBadge color="white">{{ transaction.category }}</UBadge>
+        </div>
+        <div>{{ transaction.date }}</div>
       </div>
       <div class="flex items-center justify-end">
         <div>{{ currency }}</div>
@@ -53,7 +60,7 @@ const deteleTransaction = async () => {
 
   try {
     const { error } = await supabase
-      .from("transactions")
+      .from("household_transactions")
       .delete()
       .eq("id", props.transaction.id);
 
