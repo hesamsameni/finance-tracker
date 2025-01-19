@@ -1,7 +1,7 @@
 <template>
   <UModal v-model="isOpen">
     <UCard>
-      <template #header> Add Transaction </template>
+      <template #header> Add Expense </template>
       <UForm :state="state" :schema="schema" ref="form">
         <UFormGroup
           label="Paid by"
@@ -49,28 +49,38 @@
         </UFormGroup>
 
         <UFormGroup
-          label="Description"
-          name="description"
-          hint="Optional"
-          class="mb-5"
-        >
-          <UInput
-            placeholder="This is the description"
-            icon="i-heroicons-pencil-20-solid"
-            v-model="state.description"
-          />
-        </UFormGroup>
-
-        <UFormGroup
           label="Category"
           :required="true"
           name="category"
           class="mb-5"
         >
           <USelect
-            :options="categories"
+            :options="
+              categories.map((category) => ({
+                label: category.label,
+                value: category.label,
+                icon: category.icon,
+              }))
+            "
             placeholder="Category"
             v-model="state.category"
+          >
+            <template #option="{ option }">
+              {{ option.label }}
+            </template>
+          </USelect>
+        </UFormGroup>
+
+        <UFormGroup
+          label="Description"
+          name="description"
+          hint="Optional"
+          class="mb-5"
+        >
+          <UTextarea
+            placeholder="This is the description"
+            icon="i-heroicons-pencil-20-solid"
+            v-model="state.description"
           />
         </UFormGroup>
 
@@ -105,11 +115,11 @@ const initialState = ref({
   paid_by: undefined,
   title: undefined,
   amount: 0,
-  purchase_date: undefined,
+  purchase_date: new Date().toISOString().split("T")[0], // Default to today's date
   description: undefined,
   category: undefined,
   currency: "eur",
-  created_at: new Date().toISOString().split("T")[0],
+  created_at: new Date(),
   household_id: "1",
 });
 
@@ -150,8 +160,9 @@ const saveForm = async () => {
 // Emit an event to sync the modelValue with the parent component
 const emit = defineEmits(["update:modelValue", "saved"]);
 const resetForm = () => {
-  Object.assign(state.value, initialState);
-  form.value.clear();
+  Object.assign(state.value, { ...initialState.value }); // Create a fresh copy of initialState
+
+  form.value?.clear();
 };
 const isOpen = computed({
   get: () => props.modelValue,
