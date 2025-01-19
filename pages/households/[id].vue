@@ -30,7 +30,7 @@
       <h2 class="text-2xl font-extrabold">Add new expense</h2>
     </div>
     <div>
-      <TransactionModal v-model="isOpen" @saved="refresh($route.params.id)" />
+      <AddExpenseModal v-model="isOpen" @saved="refresh($route.params.id)" />
 
       <UButton
         icon="i-heroicons-plus-circle"
@@ -43,9 +43,9 @@
   </section>
 
   <section v-if="!pending">
-    <div v-for="expense in expenses" :key="expense.id" class="mb-10">
-      <Transaction
-        :transaction="expense"
+    <div v-for="expense in expenses" :key="expense.id">
+      <Expense
+        :expense="expense"
         :loading="pending"
         @deleted="refresh($route.params.id)"
       />

@@ -2,36 +2,21 @@
 const links = [
   [
     {
-      label: "Profile",
-      avatar: {
-        src: "https://avatars.githubusercontent.com/u/739984?v=4",
-      },
-      badge: 100,
-    },
-    {
       label: "Households",
       icon: "i-heroicons-home",
-      to: "/households",
-    },
-    {
-      label: "Vertical Navigation",
-      icon: "i-heroicons-chart-bar",
-      to: "/components/vertical-navigation",
-    },
-    {
-      label: "Command Palette",
-      icon: "i-heroicons-command-line",
-      to: "/components/command-palette",
+      to: "/",
     },
   ],
   [
     {
-      label: "Examples",
-      icon: "i-heroicons-light-bulb",
+      label: "Github",
+      icon: "i-heroicons-code-bracket-square",
+      to: "https://github.com/hesamsameni/finance-tracker",
     },
     {
-      label: "Help",
-      icon: "i-heroicons-question-mark-circle",
+      label: "Visit me",
+      icon: "i-heroicons-user",
+      to: "http://hesamsameni.com",
     },
   ],
 ];
