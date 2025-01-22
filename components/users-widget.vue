@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="font-bold text-green-600 dark:text-green-400;">
+    <div class="font-bold" :class="`text-${color}-600 dark:text-${color}-400`">
       {{ title }}
     </div>
 
@@ -15,6 +15,7 @@
 const props = defineProps({
   title: String,
   amount: Number,
+  color: String,
   loading: Boolean,
 });
 const { amount } = toRefs(props);

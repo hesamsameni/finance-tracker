@@ -9,18 +9,12 @@
   <section
     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10"
   >
-    <Trend
-      color="green"
-      title="Hesam"
-      :amount="incomeTotal"
-      :last-amount="prevIncomeTotal"
-      :loading="pending"
-    />
-    <Trend
-      color="green"
-      title="Elnaz"
-      :amount="expenseTotal"
-      :last-amount="prevExpenseTotal"
+    <UsersWidget
+      v-for="(user, i) in household_users"
+      :key="i"
+      :color="user.color"
+      :title="user.name"
+      :amount="getUserExpenses(user.name)"
       :loading="pending"
     />
   </section>
@@ -57,20 +51,19 @@
 </template>
 
 <script setup>
-import { transactionViewOptions } from "~/constants";
+import { transactionViewOptions, household_users } from "~/constants";
 
 // Reactive variables
 const selectedView = ref(transactionViewOptions[1]); // Default selected view option
 const isOpen = ref(false);
 const route = useRoute();
 const householdId = route.params.id;
-
 const { dates } = useSelectedTimePeriod(selectedView);
 
 const {
   pending,
   refresh,
-  expenses: { all: expenses, incomeTotal, expenseTotal },
-} = useFetchHouseholdExpenses(dates, householdId);
+  expenses: { all: expenses, getUserExpenses },
+} = useFetchHouseholdExpenses(dates, householdId, household_users);
 await refresh(householdId);
 </script>
