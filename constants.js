@@ -11,4 +11,7 @@ export const categories = [
   { label: "Bills", icon: "i-heroicons-document-text-20-solid" },
   { label: "Eat out", icon: "i-heroicons-cake-20-solid" },
 ];
-export const household_users = ["Hesam", "Elnaz"];
+export const household_users = [
+  { name: "Hesam", color: "green" },
+  { name: "Elnaz", color: "yellow" },
+];

@@ -1,4 +1,8 @@
-export const useFetchHouseholdExpenses = (period, householdId) => {
+export const useFetchHouseholdExpenses = (
+  period,
+  householdId,
+  householdUsers
+) => {
   const supabase = useSupabaseClient();
   const pending = ref(false);
   const expenses = ref([]); // Holds the entire list of expenses
@@ -34,33 +38,28 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
     expenses.value = await fetchExpenses(householdId);
   };
 
-  const incomeTransactions = computed(() => {
-    return expenses.value.filter((expense) => expense.paid_by === "Hesam");
+  const expensesByUser = computed(() => {
+    const userExpenses = {};
+    householdUsers.forEach((user) => {
+      userExpenses[user.name] = expenses.value.filter(
+        (expense) => expense.paid_by === user.name
+      );
+    });
+    return userExpenses;
   });
 
-  const incomeTotal = computed(() => {
-    return incomeTransactions.value.reduce(
-      (acc, current) => acc + current.amount,
+  const getUserExpenses = (userName) => {
+    const userExpenses = expensesByUser.value[userName] || [];
+    return userExpenses.reduce(
+      (total, expense) => total + (expense.amount || 0),
       0
     );
-  });
-
-  const expenseTransactions = computed(() => {
-    return expenses.value.filter((expense) => expense.paid_by === "Elnaz");
-  });
-
-  const expenseTotal = computed(() => {
-    return expenseTransactions.value.reduce(
-      (acc, current) => acc + current.amount,
-      0
-    );
-  });
+  };
 
   return {
     expenses: {
       all: expenses, // Include the entire list of expenses
-      incomeTotal,
-      expenseTotal,
+      getUserExpenses,
     },
     refresh,
     pending,
