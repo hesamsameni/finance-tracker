@@ -3,7 +3,7 @@
     <AppHeader />
 
     <main class="my-10">
-      <div class="grid grid-cols-12 gap-10">
+      <div class="grid grid-cols-12 lg:gap-10">
         <div class="hidden lg:block lg:col-span-2">
           <AppSidebar />
         </div>
