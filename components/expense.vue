@@ -68,7 +68,7 @@ const props = defineProps({
   loading: Boolean,
 });
 const { currency } = useCurrency(props.expense.amount);
-const toast = useToast();
+const { toastError, toastSuccess } = useAppToast();
 const emit = defineEmits(["deleted"]);
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
@@ -88,29 +88,20 @@ const deleteExpense = async () => {
       .eq("id", props.expense.id);
 
     if (error) {
-      toast.add({
-        title: "Something Happened!",
+      toastError({
+        title: "Something went wrong!",
         description: error.message,
-        icon: "i-heroicons-exclamation-circle",
-        color: "red",
-        timeout: 0,
       });
     } else {
-      toast.add({
-        title: "Transaction Deleted",
-        icon: "i-heroicons-check-circle",
-        color: "green",
-        timeout: 4000,
+      toastSuccess({
+        title: "Expense Deleted",
       });
       emit("deleted", props.expense.id);
     }
   } catch (exception) {
-    toast.add({
-      title: "Unexpected Error!",
+    toastError({
+      title: "Something went wrong!",
       description: exception.message,
-      icon: "i-heroicons-exclamation-circle",
-      color: "red",
-      timeout: 0,
     });
   } finally {
     isLoading.value = false;
