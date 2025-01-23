@@ -39,7 +39,7 @@
 const success = ref(false);
 const email = ref("");
 const pending = ref(false);
-const toast = useToast();
+const { toastError, toastSuccess } = useAppToast();
 const supabase = useSupabaseClient();
 
 useRedirectIfAuthenticated();
@@ -55,11 +55,9 @@ const handleLogin = async () => {
     });
 
     if (error) {
-      toast.add({
-        title: "Error authenticating",
-        icon: "i-heroicons-exlamation-circle",
+      toastError({
+        title: "Something went wrong!",
         description: error.message,
-        color: "red",
       });
     } else {
       success.value = true;

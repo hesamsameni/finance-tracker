@@ -35,7 +35,7 @@ const props = defineProps({
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
-const toast = useToast();
+const { toastError, toastSuccess } = useAppToast();
 
 // Reactive state to store form data
 const initialState = ref({
@@ -79,7 +79,7 @@ const saveForm = async () => {
       if (memberError) {
         throw new Error("Failed to add user to the board.");
       }
-      toast.add({
+      toastSuccess({
         title: "Successfully joined the board!",
         description: `You have successfully joined the ${boardTitle} board`,
       });
@@ -89,7 +89,7 @@ const saveForm = async () => {
     isOpen.value = false;
     emit("joined");
   } catch (e) {
-    toast.add({
+    toastError({
       title: "Something went wrong!",
       description: e.message,
     });
