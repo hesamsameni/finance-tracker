@@ -35,6 +35,7 @@ const props = defineProps({
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
+
 const { toastError, toastSuccess } = useAppToast();
 
 // Reactive state to store form data
