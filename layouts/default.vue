@@ -1,13 +1,13 @@
 <template>
-  <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+  <div class="mx-auto px-4 lg:px-8 max-w-7xl">
     <AppHeader />
 
     <main class="my-10">
       <div class="grid grid-cols-12 gap-10">
-        <div class="col-span-2">
+        <div class="hidden lg:block lg:col-span-2">
           <AppSidebar />
         </div>
-        <div class="col-span-8">
+        <div class="col-span-12 lg:col-span-8">
           <slot />
         </div>
       </div>
@@ -25,7 +25,7 @@ useHead({
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Roboto&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Raleway&display=swap",
       crossorigin: "",
     },
   ],
@@ -35,7 +35,7 @@ useHead({
 <style>
 /* Set the font family for the entire site */
 body {
-  font-family: "Roboto";
+  font-family: "Raleway";
 }
 /* Set the background color for the entire site */
 body {
