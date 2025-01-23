@@ -2,7 +2,7 @@ export const useFetchHouseholds = () => {
   const supabase = useSupabaseClient();
   const pending = ref(false);
   const households = ref([]);
-
+  const user = useSupabaseUser();
   const fetchHouseholds = async () => {
     pending.value = true; // Start loading
 
@@ -12,6 +12,7 @@ export const useFetchHouseholds = () => {
         await supabase
           .from("board_members")
           .select("board_id")
+          .eq("user_id", user.value.id)
           .filter("role", "in", '("owner","member")');
       if (boardMembersError) {
         console.error("Error fetching board members:", boardMembersError);

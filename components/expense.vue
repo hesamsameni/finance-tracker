@@ -84,7 +84,7 @@ const deleteExpense = async () => {
 
   try {
     const { error } = await supabase
-      .from("temp_household_transactions")
+      .from("board_expenses")
       .delete()
       .eq("id", props.expense.id);
 

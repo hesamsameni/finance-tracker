@@ -15,7 +15,9 @@
           class="mb-5"
         >
           <USelect
-            :options="household_users"
+            :options="members"
+            option-attribute="user_id"
+            value-attribute="user_id"
             placeholder="Who paid this?"
             v-model="state.paid_by"
           />
@@ -103,17 +105,19 @@
 </template>
 
 <script setup>
-import { categories, household_users } from "~/constants";
+import { categories } from "~/constants";
 import { z } from "zod"; // Import Zod for schema validation
 
 // Define props for the component
 const props = defineProps({
   modelValue: Boolean,
+  members: Object,
 });
 
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
+const route = useRoute();
 const { toastError, toastSuccess } = useAppToast();
 // Reactive state to store form data
 const initialState = ref({
@@ -123,9 +127,8 @@ const initialState = ref({
   purchase_date: new Date().toISOString().split("T")[0], // Default to today's date
   description: undefined,
   category: undefined,
-  currency: "eur",
   created_at: new Date(),
-  household_id: "1",
+  board_id: route.params.id,
 });
 
 const state = ref({ ...initialState.value });
@@ -143,7 +146,7 @@ const saveForm = async () => {
   isLoading.value = true;
   try {
     const { error } = await supabase
-      .from("temp_household_transactions")
+      .from("board_expenses")
       .upsert({ ...state.value });
     if (!error) {
       toastSuccess({ title: "Expense Added" });

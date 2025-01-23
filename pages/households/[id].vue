@@ -17,11 +17,11 @@
     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10"
   >
     <UsersWidget
-      v-for="(user, i) in household_users"
+      v-for="(user, i) in boardMembers"
       :key="i"
-      :color="user.color"
-      :title="user.name"
-      :amount="getUserExpenses(user.name)"
+      :color="user.color ? user.color : 'green'"
+      :title="user.user_id"
+      :amount="getUserExpenses(user.user_id)"
       :loading="pending"
     />
   </section>
@@ -31,7 +31,11 @@
       <h2 class="text-2xl font-extrabold">Add new expense</h2>
     </div>
     <div>
-      <AddExpenseModal v-model="isOpen" @saved="refresh($route.params.id)" />
+      <AddExpenseModal
+        v-model="isOpen"
+        @saved="refresh($route.params.id)"
+        :members="boardMembers"
+      />
 
       <UButton
         icon="i-heroicons-plus-circle"
@@ -58,7 +62,7 @@
 </template>
 
 <script setup>
-import { transactionViewOptions, household_users } from "~/constants";
+import { transactionViewOptions } from "~/constants";
 
 // Reactive variables
 const selectedView = ref(transactionViewOptions[1]); // Default selected view option
@@ -70,7 +74,10 @@ const { dates } = useSelectedTimePeriod(selectedView);
 const {
   pending,
   refresh,
+  getUsers,
   expenses: { all: expenses, getUserExpenses },
-} = useFetchHouseholdExpenses(dates, householdId, household_users);
+  boardMembers: { all: boardMembers },
+} = useFetchHouseholdExpenses(dates, householdId);
 await refresh(householdId);
+await getUsers(householdId);
 </script>
