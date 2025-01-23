@@ -8,10 +8,12 @@
     </div>
     <div
       v-else
-      class="grid grid-cols-5 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+      class="expenses-desktop-view border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
     >
-      <div class="flex items-center justify-between space-x-4 col-span-4">
-        <div class="flex items-center space-x-5 w-40">
+      <div
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:space-x-4 lg:col-span-4"
+      >
+        <div class="flex items-center space-x-5 w-40 mb-5 lg:mb-0">
           <UAvatar
             size="xs"
             src="https://avatars.githubusercontent.com/u/739984?v=4"
@@ -19,18 +21,17 @@
           />
           <div class="flex-1">
             <div
-              class="truncate max-w-[100px] overflow-hidden whitespace-nowrap"
+              class="font-bold truncate max-w-[100px] overflow-hidden whitespace-nowrap"
               :title="formatTitle(expense.title)"
             >
               {{ formatTitle(expense.title) }}
             </div>
           </div>
         </div>
-        <div class="flex flex-col items-center">
+        <div class="mb-5 lg:mb-0">
           <div>{{ formatTitle(expense.paid_by) }}</div>
-          <!-- test string -->
         </div>
-        <div class="flex flex-col items-center w-24">
+        <div class="flex flex-col lg:items-center w-24 mb-5 lg:mb-0">
           <UBadge
             :icon="categoryIcons[expense.category]"
             size="sm"
@@ -38,9 +39,10 @@
             variant="outline"
             :label="expense.category"
             :trailing="false"
+            class="justify-center"
           />
         </div>
-        <div class="flex flex-col items-center">
+        <div class="lg:flex lg:flex-col lg:items-center">
           {{ formattedDate }}
         </div>
       </div>
@@ -134,3 +136,9 @@ const formatTitle = (title) => {
   return title.charAt(0).toUpperCase() + title.slice(1);
 };
 </script>
+
+<style>
+.expenses-desktop-view {
+  @apply flex flex-col lg:grid lg:grid-cols-5 py-5;
+}
+</style>

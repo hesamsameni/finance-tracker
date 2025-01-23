@@ -18,6 +18,7 @@
   >
     <UsersWidget
       v-for="(user, i) in boardMembers"
+      class="my-10 lg:my-0"
       :key="i"
       :color="user.color ? user.color : 'green'"
       :title="user.user_id"
@@ -39,9 +40,9 @@
 
       <UButton
         icon="i-heroicons-plus-circle"
-        color="white"
+        color="primary"
         variant="solid"
-        label="Add"
+        label="Add new"
         @click="isOpen = true"
       />
     </div>
