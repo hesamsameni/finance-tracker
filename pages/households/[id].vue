@@ -1,8 +1,15 @@
 <template>
+  <nuxt-link to="/" class="mb-10 flex items-center cursor-pointer">
+    <UIcon name="i-heroicons-chevron-left" />
+    <span>Back</span>
+  </nuxt-link>
+
   <section class="flex items-center justify-between mb-10">
     <h1 class="text-4xl font-extrabold">Household #{{ householdId }}</h1>
     <div>
-      <USelectMenu v-model="selectedView" :options="transactionViewOptions" />
+      <USelectMenu v-model="selectedView" :options="transactionViewOptions">
+        <template #option-empty></template>
+      </USelectMenu>
     </div>
   </section>
 
