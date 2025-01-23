@@ -64,13 +64,13 @@ const saveForm = async () => {
     const { data: board, error: boardError } = await supabase
       .from("boards")
       .select()
-      .eq("invite_token", "Ixu1wA6VYsLuYDdE");
+      .eq("invite_token", state.value.invite_token);
 
     if (boardError) {
       throw new Error("Invalid invite code or board not found.");
     }
-    const boardId = board[0].id;
-    const boardTitle = board[0].title;
+    const boardId = board[0].id ? board[0].id : 0;
+    const boardTitle = board ? board[0].title : "test";
 
     if (!boardError && boardId) {
       // Step 2: Add the current user to the board as a member
