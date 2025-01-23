@@ -28,6 +28,7 @@
         </div>
         <div class="flex flex-col items-center">
           <div>{{ formatTitle(expense.paid_by) }}</div>
+          <!-- test string -->
         </div>
         <div class="flex flex-col items-center w-24">
           <UBadge
