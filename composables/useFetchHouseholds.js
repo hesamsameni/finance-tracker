@@ -23,7 +23,8 @@ export const useFetchHouseholds = () => {
       // Step 2: Fetch the boards based on the board IDs
       const { data, error } = await supabase
         .from("boards")
-        .select("id, title, currency, invite_token") // Adjust fields as needed
+        .select("id, title, currency, invite_token")
+        .eq("is_visible", true) // Adjust fields as needed
         .in("id", boardIds); // Fetch boards only where the id is in the list of boardIds
 
       if (error) {

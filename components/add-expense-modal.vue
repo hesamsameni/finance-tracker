@@ -109,7 +109,7 @@ const props = defineProps({
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
-const toast = useToast();
+const { toastError, toastSuccess } = useAppToast();
 // Reactive state to store form data
 const initialState = ref({
   paid_by: undefined,
@@ -141,14 +141,12 @@ const saveForm = async () => {
       .from("temp_household_transactions")
       .upsert({ ...state.value });
     if (!error) {
-      toast.add({
-        title: "Transaction saved",
-      });
+      toastSuccess({ title: "Expense Added" });
       isOpen.value = false;
       emit("saved");
     }
   } catch (e) {
-    toast.add({
+    toastError({
       title: "Something went wrong!",
       description: e.message,
     });
