@@ -20,7 +20,17 @@
         >Sign in</UButton
       >
     </form>
+    <UDivider label="OR" />
+    <UButton
+      type="submit"
+      variant="solid"
+      color="primary"
+      :loading="pending"
+      @click="handleOAuth"
+      >Sign in with google</UButton
+    >
   </UCard>
+
   <UCard v-else>
     <template #header> Email has been sent </template>
     <div class="text-center">
@@ -39,10 +49,32 @@
 const success = ref(false);
 const email = ref("");
 const pending = ref(false);
-const { toastError, toastSuccess } = useAppToast();
+const { toastError } = useAppToast();
 const supabase = useSupabaseClient();
 
 useRedirectIfAuthenticated();
+
+const handleOAuth = async () => {
+  pending.value = true;
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+
+    if (error) {
+      toastError({
+        title: "Something went wrong!",
+        description: error.message,
+      });
+    } else {
+      toastSuccess({
+        title: "Signed in with google!",
+      });
+    }
+  } finally {
+    pending.value = false;
+  }
+};
 
 const handleLogin = async () => {
   pending.value = true;

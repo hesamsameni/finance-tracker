@@ -13,7 +13,7 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
       // Step 1: Fetch the board IDs where the current user is the owner
       const { data: data, error: boardMembersError } = await supabase
         .from("board_members")
-        .select("user_id")
+        .select()
         .eq("board_id", householdId);
       if (boardMembersError) {
         console.error("Error fetching board members:", boardMembersError);
