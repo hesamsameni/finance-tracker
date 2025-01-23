@@ -1,5 +1,10 @@
 <template>
-  <UModal v-model="isOpen">
+  <UModal
+    v-model="isOpen"
+    :ui="{
+      container: 'min-h-0 lg:min-h-full',
+    }"
+  >
     <UCard>
       <template #header> Add Expense </template>
       <UForm :state="state" :schema="schema" ref="form">
