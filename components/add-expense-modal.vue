@@ -8,7 +8,6 @@
     <UCard>
       <template #header> Add Expense </template>
       <UForm :state="state" :schema="schema" ref="form">
-        {{ state }}
         <UFormGroup
           label="Paid by"
           :required="true"
