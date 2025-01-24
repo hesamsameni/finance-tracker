@@ -27,7 +27,6 @@
           <UInput
             type="text"
             placeholder="Enter the title..."
-            icon="i-heroicons-currency-euro-solid"
             v-model="state.title"
           />
         </UFormGroup>
@@ -36,7 +35,6 @@
           <UInput
             type="number"
             placeholder="Enter the amount..."
-            icon="i-heroicons-currency-euro-solid"
             v-model.number="state.amount"
           />
         </UFormGroup>
@@ -50,7 +48,6 @@
           <UInput
             type="date"
             placeholder="Select the date"
-            icon="i-heroicons-calendar-days-20-solid"
             v-model="state.purchase_date"
           />
         </UFormGroup>

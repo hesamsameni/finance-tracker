@@ -7,10 +7,15 @@
       v-if="user"
     >
       <UAvatar
-        src="https://avatars.githubusercontent.com/u/739984?v=4"
+        v-if="user.user_metadata.avatar_url"
+        :src="user.user_metadata.avatar_url"
         alt="Avatar"
       />
-
+      <UIcon
+        v-else
+        name="i-heroicons-user-circle-solid"
+        class="white h-10 w-10"
+      />
       <template #account="{ item }">
         <div class="text-left">
           <p>Signed in as</p>
@@ -36,6 +41,7 @@
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 
+console.log(user);
 const items = [
   [
     {
