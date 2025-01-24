@@ -16,7 +16,18 @@
         >
           <UInput type="text" v-model="state.invite_token" />
         </UFormGroup>
-
+        <UFormGroup
+          label="Nickname"
+          :required="true"
+          name="nickname"
+          class="mb-5"
+        >
+          <UInput
+            type="text"
+            placeholder="Enter your nickname..."
+            v-model="state.nickname"
+          />
+        </UFormGroup>
         <UButton
           type="submit"
           color="black"
@@ -40,12 +51,13 @@ const props = defineProps({
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
-
+const user = useSupabaseUser();
 const { toastError, toastSuccess } = useAppToast();
 
 // Reactive state to store form data
 const initialState = ref({
   invite_token: undefined,
+  nickname: user.value.user_metadata.full_name || undefined, // Default to full_name or empty string
 });
 
 const state = ref({ ...initialState.value });
@@ -53,6 +65,7 @@ const state = ref({ ...initialState.value });
 // Schema for validating form data using Zod
 const schema = z.object({
   invite_token: z.string(), // Title must be a string
+  nickname: z.string(),
 });
 
 const saveForm = async () => {
@@ -70,7 +83,7 @@ const saveForm = async () => {
       throw new Error("Invalid invite code or board not found.");
     }
     const boardId = board[0].id ? board[0].id : 0;
-    const boardTitle = board ? board[0].title : "test";
+    const boardTitle = board ? board[0].title : "this";
 
     if (!boardError && boardId) {
       // Step 2: Add the current user to the board as a member
@@ -80,6 +93,7 @@ const saveForm = async () => {
           {
             board_id: boardId,
             role: "member", // You can change the role if needed
+            user_nickname: state.value.nickname,
           },
         ]);
       if (memberError) {

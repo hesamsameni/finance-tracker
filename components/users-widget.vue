@@ -17,6 +17,7 @@ const props = defineProps({
   amount: Number,
   color: String,
   loading: Boolean,
+  userId: String,
 });
 const { amount } = toRefs(props);
 const { currency } = useCurrency(amount);
