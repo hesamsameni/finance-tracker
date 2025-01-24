@@ -5,7 +5,9 @@
   </nuxt-link>
 
   <section class="flex items-center justify-between mb-10">
-    <h1 class="text-4xl font-extrabold">Household #{{ householdId }}</h1>
+    <h1 class="text-3xl font-extrabold">
+      {{ $route.query.title ? $route.query.title : householdId }}
+    </h1>
     <div>
       <USelectMenu v-model="selectedView" :options="transactionViewOptions">
         <template #option-empty></template>
