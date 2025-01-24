@@ -15,7 +15,18 @@
             v-model="state.title"
           />
         </UFormGroup>
-
+        <UFormGroup
+          label="Nickname"
+          :required="true"
+          name="nickname"
+          class="mb-5"
+        >
+          <UInput
+            type="text"
+            placeholder="Enter your nickname..."
+            v-model="state.nickname"
+          />
+        </UFormGroup>
         <UFormGroup
           label="Currency"
           :required="true"
@@ -51,11 +62,13 @@ const isLoading = ref(false);
 const supabase = useSupabaseClient();
 const { toastError, toastSuccess } = useAppToast();
 const inviteToken = nanoid(16);
+const user = useSupabaseUser();
 // Reactive state to store form data
 const initialState = ref({
   title: undefined,
   currency: "eur",
   invite_token: inviteToken,
+  nickname: user.value.user_metadata.full_name || "", // Default to full_name or empty string
 });
 
 const state = ref({ ...initialState.value });
@@ -64,23 +77,27 @@ const state = ref({ ...initialState.value });
 const schema = z.object({
   title: z.string(), // Title must be a string
   category: z.string(),
+  nickname: z.string(), // Validate nickname as a string
 });
 
 const saveForm = async () => {
   if (form.value.errors.length) return;
-
+  const { title, currency, invite_token } = state.value;
   isLoading.value = true;
   try {
     const { data: board, error } = await supabase
       .from("boards")
-      .upsert({ ...state.value })
+      .upsert({ title, currency, invite_token })
       .select();
 
     const boardId = board[0].id;
+
     if (!error && boardId) {
-      const { error } = await supabase
-        .from("board_members")
-        .insert({ board_id: boardId, role: "owner" });
+      const { error } = await supabase.from("board_members").insert({
+        board_id: boardId,
+        role: "owner",
+        user_nickname: state.value.nickname,
+      });
 
       if (!error) {
         toastSuccess({ title: "Board created!" });

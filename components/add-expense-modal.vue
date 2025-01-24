@@ -16,7 +16,7 @@
         >
           <USelect
             :options="members"
-            option-attribute="user_id"
+            option-attribute="user_nickname"
             value-attribute="user_id"
             placeholder="Who paid this?"
             v-model="state.paid_by"

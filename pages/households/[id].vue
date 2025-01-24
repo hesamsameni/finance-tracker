@@ -23,7 +23,8 @@
       class="my-10 lg:my-0"
       :key="i"
       :color="user.color ? user.color : 'green'"
-      :title="user.user_id"
+      :title="user.user_nickname"
+      :userId="user.user_id"
       :amount="getUserExpenses(user.user_id)"
       :loading="pending"
     />
@@ -56,6 +57,7 @@
         :expense="expense"
         :loading="pending"
         @deleted="refresh($route.params.id)"
+        :members="boardMembers"
       />
     </div>
   </section>
