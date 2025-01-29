@@ -5,7 +5,7 @@
   </nuxt-link>
 
   <section class="flex items-center justify-between mb-10">
-    <h1 class="text-3xl font-extrabold">
+    <h1 class="text-lg lg:text-3xl font-extrabold">
       {{ $route.query.title ? $route.query.title : householdId }}
     </h1>
     <div>
@@ -20,7 +20,7 @@
   >
     <UsersWidget
       v-for="(user, i) in boardMembers"
-      class="my-10 lg:my-0"
+      class="my-2 lg:my-0"
       :key="i"
       :color="user.color ? user.color : 'green'"
       :title="user.user_nickname"
@@ -32,7 +32,7 @@
 
   <section class="flex justify-between mb-10">
     <div>
-      <h2 class="text-2xl font-extrabold">Add new expense</h2>
+      <h2 class="text-lg lg:text-2xl font-extrabold">List of expenses</h2>
     </div>
     <div>
       <AddExpenseModal
@@ -57,6 +57,7 @@
         :expense="expense"
         :loading="pending"
         @deleted="refresh($route.params.id)"
+        @edited="refresh($route.params.id)"
         :members="boardMembers"
       />
     </div>

@@ -6,10 +6,11 @@
     }"
   >
     <UCard>
-      <template #header> Add Expense </template>
+      <template #header> {{ isEditing ? "Edit" : "Add" }} Expense </template>
       <UForm :state="state" :schema="schema" ref="form">
         <UFormGroup
-          label="Paid by"
+          v-if="!isEditing"
+          label="Who paid it?"
           :required="true"
           name="paid_by"
           class="mb-5"
@@ -23,7 +24,12 @@
           />
         </UFormGroup>
 
-        <UFormGroup label="Title" :required="true" name="title" class="mb-5">
+        <UFormGroup
+          label="What was it?"
+          :required="true"
+          name="title"
+          class="mb-5"
+        >
           <UInput
             type="text"
             placeholder="Enter the title..."
@@ -31,7 +37,12 @@
           />
         </UFormGroup>
 
-        <UFormGroup label="Amount" :required="true" name="amount" class="mb-5">
+        <UFormGroup
+          label="How much was it?"
+          :required="true"
+          name="amount"
+          class="mb-5"
+        >
           <UInput
             type="number"
             placeholder="Enter the amount..."
@@ -40,7 +51,7 @@
         </UFormGroup>
 
         <UFormGroup
-          label="Date"
+          label="When was it?"
           :required="true"
           name="purchase_date"
           class="mb-5"
@@ -108,8 +119,14 @@ import { z } from "zod"; // Import Zod for schema validation
 // Define props for the component
 const props = defineProps({
   modelValue: Boolean,
+  expense: {
+    type: Object,
+    required: false,
+  },
   members: Object,
 });
+
+const isEditing = computed(() => !!props.expense);
 
 const form = ref();
 const isLoading = ref(false);
@@ -117,18 +134,30 @@ const supabase = useSupabaseClient();
 const route = useRoute();
 const { toastError, toastSuccess } = useAppToast();
 // Reactive state to store form data
-const initialState = ref({
-  paid_by: undefined,
-  title: undefined,
-  amount: 0,
-  purchase_date: new Date().toISOString().split("T")[0], // Default to today's date
-  description: undefined,
-  category: undefined,
-  created_at: new Date(),
-  board_id: route.params.id,
-});
 
-const state = ref({ ...initialState.value });
+const initialState = isEditing.value
+  ? {
+      paid_by: props.expense["paid_by"],
+      title: props.expense["title"],
+      amount: props.expense["amount"],
+      purchase_date: props.expense["purchase_date"].split("T")[0],
+      description: props.expense["description"],
+      category: props.expense["category"],
+      created_at: props.expense["created_at"],
+      board_id: props.expense["board_id"],
+    }
+  : {
+      paid_by: undefined,
+      title: undefined,
+      amount: 0,
+      purchase_date: new Date().toISOString().split("T")[0], // Default to today's date
+      description: undefined,
+      category: undefined,
+      created_at: new Date(),
+      board_id: route.params.id,
+    };
+
+const state = ref({ ...initialState });
 
 // Schema for validating form data using Zod
 const schema = z.object({
@@ -144,7 +173,7 @@ const saveForm = async () => {
   try {
     const { error } = await supabase
       .from("board_expenses")
-      .upsert({ ...state.value });
+      .upsert({ ...state.value, id: props.expense?.id });
     if (!error) {
       toastSuccess({ title: "Expense Added" });
       isOpen.value = false;
