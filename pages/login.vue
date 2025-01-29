@@ -11,24 +11,32 @@
           required
         />
       </UFormGroup>
+      <div class="flex items-center justify-center">
+        <UButton
+          block
+          type="submit"
+          variant="solid"
+          color="primary"
+          :loading="pending"
+          :disabled="pending"
+          >Sign in</UButton
+        >
+      </div>
+    </form>
+
+    <UDivider label="OR" class="my-10" />
+    <div class="flex items-center justify-center">
       <UButton
+        block
         type="submit"
         variant="solid"
-        color="primary"
+        color="white"
         :loading="pending"
-        :disabled="pending"
-        >Sign in</UButton
+        @click="handleOAuth"
+        icon="flat-color-icons:google"
+        >Sign in with google</UButton
       >
-    </form>
-    <UDivider label="OR" />
-    <UButton
-      type="submit"
-      variant="solid"
-      color="primary"
-      :loading="pending"
-      @click="handleOAuth"
-      >Sign in with google</UButton
-    >
+    </div>
   </UCard>
 
   <UCard v-else>

@@ -7,6 +7,11 @@
       <USkeleton class="h-8 w-full" />
     </div>
     <div v-else>
+      <AddExpenseModal
+        v-model="isEdittingModalOpen"
+        :expense="expense"
+        @saved="emit('edited')"
+      />
       <div
         class="hidden lg:grid lg:grid-cols-5 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
       >
@@ -116,9 +121,10 @@ const props = defineProps({
   loading: Boolean,
   members: Object,
 });
+const isEdittingModalOpen = ref(false);
 const { currency } = useCurrency(props.expense.amount);
 const { toastError, toastSuccess } = useAppToast();
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "edited"]);
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
 
@@ -179,6 +185,7 @@ const items = [
     {
       label: "Edit",
       icon: "i-heroicons-pencil-square-20-solid",
+      click: () => (isEdittingModalOpen.value = true),
     },
     {
       label: "Delete",
