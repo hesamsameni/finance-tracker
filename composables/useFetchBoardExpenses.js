@@ -1,12 +1,12 @@
-export const useFetchHouseholdExpenses = (period, householdId) => {
+export const useFetchBoardExpenses = (period, boardId) => {
   const supabase = useSupabaseClient();
   const pending = ref(false);
   const expenses = ref([]); // Holds the entire list of expenses
   const boardMembers = ref([]);
 
-  watch(period, async () => await refresh(householdId));
+  watch(period, async () => await refresh(boardId));
 
-  const getCurrentBoardMembers = async (householdId) => {
+  const getCurrentBoardMembers = async (boardId) => {
     pending.value = true;
 
     try {
@@ -14,7 +14,7 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
       const { data: data, error: boardMembersError } = await supabase
         .from("board_members")
         .select()
-        .eq("board_id", householdId);
+        .eq("board_id", boardId);
       if (boardMembersError) {
         console.error("Error fetching board members:", boardMembersError);
         return [];
@@ -33,7 +33,7 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
     }
   };
 
-  const fetchExpenses = async (householdId) => {
+  const fetchExpenses = async (boardId) => {
     pending.value = true;
 
     try {
@@ -43,7 +43,7 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
           const { data, error } = await supabase
             .from("board_expenses")
             .select()
-            .eq("board_id", householdId)
+            .eq("board_id", boardId)
             .gte("purchase_date", period.value.from.toISOString())
             .lte("purchase_date", period.value.to.toISOString())
             .order("purchase_date", { ascending: false });
@@ -58,12 +58,12 @@ export const useFetchHouseholdExpenses = (period, householdId) => {
     }
   };
 
-  const refresh = async (householdId) => {
-    expenses.value = await fetchExpenses(householdId);
+  const refresh = async (boardId) => {
+    expenses.value = await fetchExpenses(boardId);
   };
 
-  const getUsers = async (householdId) => {
-    boardMembers.value = await getCurrentBoardMembers(householdId);
+  const getUsers = async (boardId) => {
+    boardMembers.value = await getCurrentBoardMembers(boardId);
   };
 
   const expensesByUser = computed(() => {

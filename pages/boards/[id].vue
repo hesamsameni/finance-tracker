@@ -6,7 +6,7 @@
 
   <section class="flex items-center justify-between mb-10">
     <h1 class="text-lg lg:text-3xl font-extrabold">
-      {{ $route.query.title ? $route.query.title : householdId }}
+      {{ $route.query.title ? $route.query.title : boardId }}
     </h1>
     <div>
       <USelectMenu v-model="selectedView" :options="transactionViewOptions">
@@ -74,7 +74,7 @@ import { transactionViewOptions } from "~/constants";
 const selectedView = ref(transactionViewOptions[1]); // Default selected view option
 const isOpen = ref(false);
 const route = useRoute();
-const householdId = route.params.id;
+const boardId = route.params.id;
 const { dates } = useSelectedTimePeriod(selectedView);
 
 const {
@@ -83,7 +83,7 @@ const {
   getUsers,
   expenses: { all: expenses, getUserExpenses },
   boardMembers: { all: boardMembers },
-} = useFetchHouseholdExpenses(dates, householdId);
-await refresh(householdId);
-await getUsers(householdId);
+} = useFetchBoardExpenses(dates, boardId);
+await refresh(boardId);
+await getUsers(boardId);
 </script>

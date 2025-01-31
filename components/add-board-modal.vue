@@ -68,7 +68,7 @@ const initialState = ref({
   title: undefined,
   currency: "eur",
   invite_token: inviteToken,
-  nickname: user.value.user_metadata.full_name || "", // Default to full_name or empty string
+  nickname: user.value ? user.value.user_metadata.full_name : "", // Default to full_name or empty string
 });
 
 const state = ref({ ...initialState.value });

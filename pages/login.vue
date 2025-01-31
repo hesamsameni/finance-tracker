@@ -1,7 +1,14 @@
 <template>
   <UCard v-if="!success">
-    <template #header> Sign in </template>
-
+    <template #header>{{
+      $route.query.inviteToken ? "Join Board" : "Sign in"
+    }}</template>
+    <p
+      v-if="$route.query.inviteToken"
+      class="mb-4 text-gray-600 dark:text-gray-300"
+    >
+      You've been invited to join a board. Sign in to continue.
+    </p>
     <form @submit.prevent="handleLogin">
       <UFormGroup label="Email" name="email" class="mb-4" :required="true">
         <UInput
@@ -55,6 +62,7 @@
 
 <script setup>
 const success = ref(false);
+const route = useRoute();
 const email = ref("");
 const pending = ref(false);
 const { toastError } = useAppToast();
@@ -67,6 +75,13 @@ const handleOAuth = async () => {
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${redirectUrl}/confirm${
+          route.query.inviteToken
+            ? `?inviteToken=${encodeURIComponent(route.query.inviteToken)}`
+            : ""
+        }`,
+      },
     });
 
     if (error) {
@@ -90,7 +105,11 @@ const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: {
-        emailRedirectTo: `${redirectUrl}/confirm`,
+        emailRedirectTo: `${redirectUrl}/confirm${
+          route.query.inviteToken
+            ? `?inviteToken=${encodeURIComponent(route.query.inviteToken)}`
+            : ""
+        }`,
       },
     });
 

@@ -2,7 +2,7 @@
 const links = [
   [
     {
-      label: "Households",
+      label: "Boards",
       icon: "i-heroicons-home",
       to: "/",
     },
