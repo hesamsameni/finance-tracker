@@ -1,9 +1,9 @@
-export const useFetchHouseholds = () => {
+export const useFetchBoards = () => {
   const supabase = useSupabaseClient();
   const pending = ref(false);
-  const households = ref([]);
+  const boards = ref([]);
   const user = useSupabaseUser();
-  const fetchHouseholds = async () => {
+  const fetchBoards = async () => {
     pending.value = true; // Start loading
 
     try {
@@ -42,11 +42,11 @@ export const useFetchHouseholds = () => {
   };
 
   const refresh = async () => {
-    households.value = await fetchHouseholds();
+    boards.value = await fetchBoards();
   };
 
   return {
-    households,
+    boards,
     refresh,
     pending,
   };

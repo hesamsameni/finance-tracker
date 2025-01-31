@@ -43,71 +43,106 @@
 
 <script setup>
 import { z } from "zod"; // Import Zod for schema validation
-// Define props for the component
-const props = defineProps({
-  modelValue: Boolean,
-});
-
+const router = useRouter();
+const route = useRoute();
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const { toastError, toastSuccess } = useAppToast();
 
+// Define props for the component
+const props = defineProps({
+  modelValue: Boolean,
+  initialToken: {
+    type: String,
+    default: "",
+  },
+  isStandalone: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 // Reactive state to store form data
 const initialState = ref({
-  invite_token: undefined,
-  nickname: user.value.user_metadata.full_name || undefined, // Default to full_name or empty string
+  invite_token: props.initialToken || route.query.inviteToken || "",
+  nickname: user.value ? user.value.user_metadata.full_name : "", // Default to full_name or empty string
 });
 
 const state = ref({ ...initialState.value });
 
 // Schema for validating form data using Zod
 const schema = z.object({
-  invite_token: z.string(), // Title must be a string
-  nickname: z.string(),
+  invite_token: z.string().min(1, "Invite code is required"),
+  nickname: z.string().min(1, "Nickname is required"),
 });
 
 const saveForm = async () => {
+  if (!user.value) {
+    router.push({
+      path: "/login",
+      query: {
+        redirect: props.isStandalone ? "/join" : route.path,
+        inviteToken: state.value.invite_token,
+      },
+    });
+    return;
+  }
+
   if (form.value.errors.length) return;
 
   isLoading.value = true;
+
   try {
     // Step 1: Check if the invite code corresponds to a valid board
     const { data: board, error: boardError } = await supabase
       .from("boards")
       .select()
-      .eq("invite_token", state.value.invite_token);
+      .eq("invite_token", state.value.invite_token)
+      .single();
 
-    if (boardError) {
-      throw new Error("Invalid invite code or board not found.");
+    if (boardError || !board) {
+      toastError({ title: "Invalid or expired invite code!" });
     }
-    const boardId = board[0].id ? board[0].id : 0;
-    const boardTitle = board ? board[0].title : "this";
 
-    if (!boardError && boardId) {
-      // Step 2: Add the current user to the board as a member
+    // Check if user is already a member
+    const { data: existingMember } = await supabase
+      .from("board_members")
+      .select()
+      .eq("board_id", board.id)
+      .eq("user_id", user.value.id)
+      .single();
+
+    if (!existingMember) {
+      // Add user to board members
       const { error: memberError } = await supabase
         .from("board_members")
         .insert([
           {
-            board_id: boardId,
-            role: "member", // You can change the role if needed
+            board_id: board.id,
+            user_id: user.value.id,
+            role: "member",
             user_nickname: state.value.nickname,
           },
         ]);
+
       if (memberError) {
-        throw new Error("Failed to add user to the board.");
+        toastError({ title: "Failed to join the board!" });
       }
+
       toastSuccess({
-        title: "Successfully joined the board!",
-        description: `You have successfully joined the ${boardTitle} board`,
+        title: "Successfully joined!",
+        description: `You've joined the ${board.title} board`,
       });
     }
 
-    // Close the modal and emit events
-    isOpen.value = false;
-    emit("joined");
+    if (props.isStandalone) {
+      router.push(`/boards/${board.id}`);
+    } else {
+      emit("joined", { boardId: board.id, boardTitle: board.title });
+      isOpen.value = false;
+    }
   } catch (e) {
     toastError({
       title: "Something went wrong!",
@@ -117,6 +152,14 @@ const saveForm = async () => {
     isLoading.value = false;
   }
 };
+
+// Handle external token changes
+watch(
+  () => props.initialToken,
+  (newVal) => {
+    state.value.invite_token = newVal;
+  }
+);
 
 // Emit an event to sync the modelValue with the parent component
 const emit = defineEmits(["update:modelValue", "joined"]);
