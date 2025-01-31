@@ -43,7 +43,7 @@
                 <template #panel>
                   <div>
                     <div
-                      v-for="item in getDropdownItems(boardId)"
+                      v-for="item in getDropdownItems(board)"
                       :key="item.label"
                       class="dropdown-item flex items-center space-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                       @click="item.click"
