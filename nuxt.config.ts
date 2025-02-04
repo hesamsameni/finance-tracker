@@ -8,13 +8,18 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/supabase'],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase', 'nuxt-plotly'],
   supabase: {
     redirect: false
   },
   runtimeConfig: {
     public: {
       baseUrl: process.env.BASE_URL ?? "http://localhost:3000",
+    },
+  },
+  vite: {
+    optimizeDeps: {
+      include: ["plotly.js-dist-min"],
     },
   },
 })

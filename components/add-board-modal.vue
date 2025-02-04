@@ -36,6 +36,40 @@
           <UInput type="text" v-model="state.currency" />
         </UFormGroup>
 
+        <UFormGroup label="Categories" class="mb-5">
+          <div class="grid grid-cols-2 gap-4 mt-5">
+            <div
+              v-for="category in availableCategories"
+              :key="category.label"
+              class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer"
+              :class="
+                selectedCategories.includes(category.label)
+                  ? 'border-primary-500'
+                  : 'border-gray-200 hover:border-gray-300'
+              "
+              @click="toggleCategory(category.label)"
+            >
+              <UIcon
+                :name="category.icon"
+                class="w-5 h-5"
+                :class="
+                  selectedCategories.includes(category.label)
+                    ? 'text-primary-500'
+                    : 'text-gray-200'
+                "
+              />
+              <span
+                :class="
+                  selectedCategories.includes(category.label)
+                    ? 'text-primary-500'
+                    : 'text-gray-200'
+                "
+                >{{ category.label }}</span
+              >
+            </div>
+          </div>
+        </UFormGroup>
+
         <UButton
           type="submit"
           color="black"
@@ -52,17 +86,29 @@
 <script setup>
 import { z } from "zod"; // Import Zod for schema validation
 import { nanoid } from "nanoid";
+import { categories } from "~/constants";
 // Define props for the component
 const props = defineProps({
   modelValue: Boolean,
 });
 
+const selectedCategories = ref([]);
+const availableCategories = ref(categories);
 const form = ref();
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
 const { toastError, toastSuccess } = useAppToast();
 const inviteToken = nanoid(16);
 const user = useSupabaseUser();
+
+const toggleCategory = (label) => {
+  const index = selectedCategories.value.indexOf(label);
+  if (index === -1) {
+    selectedCategories.value.push(label);
+  } else {
+    selectedCategories.value.splice(index, 1);
+  }
+};
 // Reactive state to store form data
 const initialState = ref({
   title: undefined,
@@ -98,6 +144,26 @@ const saveForm = async () => {
         role: "owner",
         user_nickname: state.value.nickname,
       });
+
+      if (selectedCategories.value.length > 0) {
+        const categoriesToInsert = selectedCategories.value.map((label) => {
+          const category = availableCategories.value.find(
+            (c) => c.label === label
+          );
+          return {
+            board_id: boardId, // or existing board ID for edits
+            label: category.label,
+            icon: category.icon,
+            color: category.color,
+          };
+        });
+
+        const { error } = await supabase
+          .from("categories")
+          .upsert(categoriesToInsert);
+
+        if (error) throw error;
+      }
 
       if (!error) {
         toastSuccess({ title: "Board created!" });

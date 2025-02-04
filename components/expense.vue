@@ -7,7 +7,7 @@
       <USkeleton class="h-8 w-full" />
     </div>
     <div v-else>
-      <AddExpenseModal
+      <ExpenseModal
         v-model="isEdittingModalOpen"
         :expense="expense"
         @saved="emit('edited')"
@@ -114,7 +114,6 @@
 
 <script setup>
 import { format } from "date-fns";
-import { categories } from "~/constants";
 
 const props = defineProps({
   expense: Object,
@@ -140,14 +139,22 @@ const paidByNickname = computed(() => {
   return member ? member.user_nickname : "Unknown";
 });
 
-// Map category to its corresponding icon and color
 const categoryDetails = computed(() => {
-  const category = categories.find(
-    (cat) => cat.label === props.expense.category
-  );
-  return category
-    ? { icon: category.icon, color: category.color }
-    : { icon: "i-heroicons-question-mark-circle-20-solid", color: "gray" }; // Default values if not found
+  if (categories.value && categories.value.length > 0) {
+    const category = categories.value.find(
+      (cat) => cat.label === props.expense.category
+    );
+    return category
+      ? {
+          icon: category.icon || "i-heroicons-question-mark-circle-20-solid",
+          color: category.color || "gray",
+        }
+      : {
+          icon: "i-heroicons-question-mark-circle-20-solid",
+          color: "gray",
+        };
+  }
+  return { icon: "i-heroicons-question-mark-circle-20-solid", color: "gray" };
 });
 
 const deleteExpense = async () => {
@@ -198,4 +205,8 @@ const items = [
 const formatTitle = (title) => {
   return title.charAt(0).toUpperCase() + title.slice(1);
 };
+const route = useRoute();
+
+const { pending, error, getCategories, categories } = useFetchBoardCategories();
+await getCategories(route.params.id); // Pass boardId when calling
 </script>

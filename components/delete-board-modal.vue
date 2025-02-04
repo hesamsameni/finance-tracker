@@ -57,7 +57,11 @@ const deleteBoard = async () => {
     if (error) {
       throw new Error(error.message);
     }
-
+    const { catgoriesDeleteError } = await supabase
+      .from("categories")
+      .delete()
+      .eq("board_id", props.board.id);
+    if (catgoriesDeleteError) throw error;
     // Success
     toastSuccess({
       title: "Board Hidden",

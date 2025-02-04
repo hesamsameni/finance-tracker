@@ -113,7 +113,6 @@
 </template>
 
 <script setup>
-import { categories } from "~/constants";
 import { z } from "zod"; // Import Zod for schema validation
 
 // Define props for the component
@@ -203,4 +202,7 @@ const isOpen = computed({
     emit("update:modelValue", value);
   },
 });
+
+const { pending, error, getCategories, categories } = useFetchBoardCategories();
+await getCategories(route.params.id); // Pass boardId when calling
 </script>
