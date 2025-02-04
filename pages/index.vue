@@ -18,6 +18,11 @@
         :board="selectedBoard"
         @deleted="refresh()"
       />
+      <EditBoardModal
+        v-model="editBoardModalIsOpen"
+        :board="selectedBoard"
+        @saved="refresh($route.params.id)"
+      />
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div v-for="board in boards" :key="board.id">
@@ -84,6 +89,7 @@
 import { ref } from "vue";
 
 const addBoardModalIsOpen = ref(false);
+const editBoardModalIsOpen = ref(false);
 const deleteBoardModalIsOpen = ref(false);
 const selectedBoard = ref(null);
 const { toastError, toastSuccess } = useAppToast();
@@ -96,6 +102,11 @@ const getDropdownItems = (board) => {
       click: () => handleShareBoard(board),
     },
     {
+      label: "Edit",
+      icon: "i-heroicons-pencil-20-solid",
+      click: () => openEditModal(board),
+    },
+    {
       label: "Delete",
       icon: "i-heroicons-trash-20-solid",
       click: () => openDeleteModal(board),
@@ -106,6 +117,11 @@ const getDropdownItems = (board) => {
 const openDeleteModal = (board) => {
   selectedBoard.value = board;
   deleteBoardModalIsOpen.value = true;
+};
+
+const openEditModal = (board) => {
+  selectedBoard.value = board;
+  editBoardModalIsOpen.value = true;
 };
 
 const handleShareBoard = async (board) => {

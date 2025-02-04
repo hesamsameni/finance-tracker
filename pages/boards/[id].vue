@@ -16,18 +16,28 @@
   </section>
 
   <section
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10"
+    class="flex flex-col-reverse justify-center lg:flex-row lg:justify-between lg:mb-20"
   >
-    <UsersWidget
-      v-for="(user, i) in boardMembers"
-      class="my-2 lg:my-0"
-      :key="i"
-      :color="user.color ? user.color : 'green'"
-      :title="user.user_nickname"
-      :userId="user.user_id"
-      :amount="getUserExpenses(user.user_id)"
-      :loading="pending"
-    />
+    <div class="flex justify-between lg:flex-col">
+      <UsersWidget
+        v-for="(user, i) in boardMembers"
+        class="my-2"
+        :key="i"
+        :color="user.color ? user.color : 'green'"
+        :title="user.user_nickname"
+        :userId="user.user_id"
+        :amount="getUserExpenses(user.user_id)"
+        :loading="pending"
+      />
+    </div>
+    <div class="flex justify-center">
+      <ClientOnly>
+        <ExpensesPieChart v-if="expenses.length" :categories="categories" />
+        <p v-else class="text-center text-gray-500">
+          No expenses to display chart.
+        </p>
+      </ClientOnly>
+    </div>
   </section>
 
   <section class="flex justify-between mb-10">
@@ -35,7 +45,7 @@
       <h2 class="text-lg lg:text-2xl font-extrabold">List of expenses</h2>
     </div>
     <div>
-      <AddExpenseModal
+      <ExpenseModal
         v-model="isOpen"
         @saved="refresh($route.params.id)"
         :members="boardMembers"
@@ -86,4 +96,17 @@ const {
 } = useFetchBoardExpenses(dates, boardId);
 await refresh(boardId);
 await getUsers(boardId);
+
+// Add categories data computation
+// Update categories computation
+const categories = computed(() => {
+  const categoryMap = {};
+
+  expenses.value.forEach((expense) => {
+    const category = expense.category || "Uncategorized";
+    categoryMap[category] = (categoryMap[category] || 0) + expense.amount;
+  });
+
+  return categoryMap;
+});
 </script>

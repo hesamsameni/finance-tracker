@@ -1,19 +1,14 @@
 <template>
-  <UCard>
-    <div>
-      <div
-        class="font-bold"
-        :class="`text-${color}-600 dark:text-${color}-400`"
-      >
-        {{ title }}
-      </div>
-
-      <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
-        <USkeleton class="h-8 w-full" v-if="loading" />
-        <div v-else>{{ currency }}</div>
-      </div>
+  <div class="mb-20">
+    <div class="font-bold" :class="`text-${color}-600 dark:text-${color}-400`">
+      {{ title }}
     </div>
-  </UCard>
+
+    <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
+      <USkeleton class="h-8 w-full" v-if="loading" />
+      <div v-else>{{ currency }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup>

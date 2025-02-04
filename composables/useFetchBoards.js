@@ -24,7 +24,9 @@ export const useFetchBoards = () => {
       // Step 2: Fetch the boards based on the board IDs
       const { data, error } = await supabase
         .from("boards")
-        .select("id, title, currency, invite_token")
+        .select(
+          "id, title, currency, invite_token,  categories(id, label, icon, color)"
+        )
         .eq("is_visible", true) // Adjust fields as needed
         .in("id", boardIds); // Fetch boards only where the id is in the list of boardIds
 

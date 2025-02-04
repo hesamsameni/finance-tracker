@@ -37,4 +37,9 @@ export const categories = [
     icon: "fluent-emoji-high-contrast:right-arrow",
     color: "lime",
   },
+  {
+    label: "Entertainment",
+    icon: "fluent-emoji-high-contrast:movie-camera",
+    color: "amber",
+  },
 ];
