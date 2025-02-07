@@ -3,40 +3,36 @@ export const useFetchBoards = () => {
   const pending = ref(false);
   const boards = ref([]);
   const user = useSupabaseUser();
-  const fetchBoards = async () => {
-    pending.value = true; // Start loading
 
+  const fetchBoards = async () => {
+    pending.value = true;
     try {
-      // Step 1: Fetch the board IDs where the current user is the owner
+      // Fetch board IDs where the current user is an owner or member
       const { data: boardMembersData, error: boardMembersError } =
         await supabase
           .from("board_members")
           .select("board_id")
           .eq("user_id", user.value.id)
-          .filter("role", "in", '("owner","member")');
-      if (boardMembersError) {
-        console.error("Error fetching board members:", boardMembersError);
-        return [];
-      }
+          .in("role", ["owner", "member"]);
+
+      if (boardMembersError) throw boardMembersError;
+      if (!boardMembersData.length) return [];
 
       const boardIds = boardMembersData.map((member) => member.board_id);
 
-      // Step 2: Fetch the boards based on the board IDs
+      // Fetch boards based on the retrieved board IDs
       const { data, error } = await supabase
         .from("boards")
         .select(
-          "id, title, currency, invite_token,  categories(id, label, icon, color)"
+          "id, title, currency, invite_token, categories(id, label, icon, color)"
         )
-        .eq("is_visible", true) // Adjust fields as needed
-        .in("id", boardIds); // Fetch boards only where the id is in the list of boardIds
+        .eq("is_visible", true)
+        .in("id", boardIds);
 
-      if (error) {
-        console.error("Error fetching boards:", error);
-        return [];
-      }
+      if (error) throw error;
       return data;
     } catch (err) {
-      console.error("Unexpected error:", err);
+      console.error("Error fetching boards:", err);
       return [];
     } finally {
       pending.value = false;
