@@ -96,6 +96,7 @@ const editBoardModalIsOpen = ref(false);
 const deleteBoardModalIsOpen = ref(false);
 const selectedBoard = ref(null);
 const { toastError, toastSuccess } = useAppToast();
+const router = useRouter();
 
 if (!user.value) {
   router.push({
