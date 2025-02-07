@@ -1,10 +1,9 @@
 export const useFetchBoardCategories = () => {
   const supabase = useSupabaseClient();
   const pending = ref(false);
-  const error = ref(null); // Add error state
+  const error = ref(null);
   const categories = ref([]);
 
-  // Single unified fetch function
   const getCategories = async (boardId) => {
     pending.value = true;
     error.value = null;
@@ -23,7 +22,7 @@ export const useFetchBoardCategories = () => {
     } catch (err) {
       error.value = err;
       console.error("Error fetching categories:", err);
-      categories.value = []; // Reset on error
+      categories.value = [];
       return [];
     } finally {
       pending.value = false;
@@ -33,7 +32,7 @@ export const useFetchBoardCategories = () => {
   return {
     categories,
     pending,
-    error, // Expose error state
+    error,
     getCategories,
   };
 };

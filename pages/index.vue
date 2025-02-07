@@ -9,17 +9,20 @@
         >Create</strong
       >
       a new board
-      <AddBoardModal
+      <BoardModal
         v-model="addBoardModalIsOpen"
+        mode="add"
         @saved="refresh($route.params.id)"
       />
-      <DeleteBoardModal
+      <BoardModal
         v-model="deleteBoardModalIsOpen"
+        mode="delete"
         :board="selectedBoard"
         @deleted="refresh()"
       />
-      <EditBoardModal
+      <BoardModal
         v-model="editBoardModalIsOpen"
+        mode="edit"
         :board="selectedBoard"
         @saved="refresh($route.params.id)"
       />
@@ -87,12 +90,18 @@
 
 <script setup>
 import { ref } from "vue";
-
+const user = useSupabaseUser();
 const addBoardModalIsOpen = ref(false);
 const editBoardModalIsOpen = ref(false);
 const deleteBoardModalIsOpen = ref(false);
 const selectedBoard = ref(null);
 const { toastError, toastSuccess } = useAppToast();
+
+if (!user.value) {
+  router.push({
+    path: "/login",
+  });
+}
 
 const getDropdownItems = (board) => {
   return [
