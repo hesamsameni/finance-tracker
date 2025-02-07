@@ -13,6 +13,8 @@ export default defineNuxtConfig({
     redirect: false
   },
   runtimeConfig: {
+    deepseekApiKey: process.env.NUXT_DEEPSEEK_API_KEY,
+    openaiApiKey: process.env.NUXT_OPENAI_API_KEY,
     public: {
       baseUrl: process.env.BASE_URL ?? "http://localhost:3000",
     },

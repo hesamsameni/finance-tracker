@@ -84,23 +84,43 @@
 </template>
 
 <script setup>
-import { z } from "zod"; // Import Zod for schema validation
+import { z } from "zod";
 import { nanoid } from "nanoid";
 import { categories } from "~/constants";
-// Define props for the component
+import { useBoardApi } from "~/composables/useBoardApi"; // Refactored API logic
+
+// Props and Emits
 const props = defineProps({
   modelValue: Boolean,
 });
+const emit = defineEmits(["update:modelValue", "saved"]);
 
+// Refs and State
 const selectedCategories = ref([]);
 const availableCategories = ref(categories);
 const form = ref();
 const isLoading = ref(false);
-const supabase = useSupabaseClient();
-const { toastError, toastSuccess } = useAppToast();
-const inviteToken = nanoid(16);
 const user = useSupabaseUser();
+const { toastError, toastSuccess } = useAppToast();
+const { createBoard, addBoardMember, addCategoriesToBoard } = useBoardApi();
 
+// Form State
+const initialState = {
+  title: undefined,
+  currency: "eur",
+  invite_token: nanoid(16),
+  nickname: user.value ? user.value.user_metadata.full_name : "",
+};
+const state = ref({ ...initialState });
+
+// Schema Validation
+const schema = z.object({
+  title: z.string(),
+  category: z.string(),
+  nickname: z.string(),
+});
+
+// Methods
 const toggleCategory = (label) => {
   const index = selectedCategories.value.indexOf(label);
   if (index === -1) {
@@ -109,86 +129,48 @@ const toggleCategory = (label) => {
     selectedCategories.value.splice(index, 1);
   }
 };
-// Reactive state to store form data
-const initialState = ref({
-  title: undefined,
-  currency: "eur",
-  invite_token: inviteToken,
-  nickname: user.value ? user.value.user_metadata.full_name : "", // Default to full_name or empty string
-});
-
-const state = ref({ ...initialState.value });
-
-// Schema for validating form data using Zod
-const schema = z.object({
-  title: z.string(), // Title must be a string
-  category: z.string(),
-  nickname: z.string(), // Validate nickname as a string
-});
 
 const saveForm = async () => {
   if (form.value.errors.length) return;
-  const { title, currency, invite_token } = state.value;
   isLoading.value = true;
+
   try {
-    const { data: board, error } = await supabase
-      .from("boards")
-      .upsert({ title, currency, invite_token })
-      .select();
+    const boardId = await createBoard(state.value);
+    await addBoardMember(boardId, state.value.nickname);
 
-    const boardId = board[0].id;
-
-    if (!error && boardId) {
-      const { error } = await supabase.from("board_members").insert({
-        board_id: boardId,
-        role: "owner",
-        user_nickname: state.value.nickname,
+    if (selectedCategories.value.length > 0) {
+      const categoriesToInsert = selectedCategories.value.map((label) => {
+        const category = availableCategories.value.find(
+          (c) => c.label === label
+        );
+        return {
+          board_id: boardId,
+          label: category.label,
+          icon: category.icon,
+          color: category.color,
+        };
       });
-
-      if (selectedCategories.value.length > 0) {
-        const categoriesToInsert = selectedCategories.value.map((label) => {
-          const category = availableCategories.value.find(
-            (c) => c.label === label
-          );
-          return {
-            board_id: boardId, // or existing board ID for edits
-            label: category.label,
-            icon: category.icon,
-            color: category.color,
-          };
-        });
-
-        const { error } = await supabase
-          .from("categories")
-          .upsert(categoriesToInsert);
-
-        if (error) throw error;
-      }
-
-      if (!error) {
-        toastSuccess({ title: "Board created!" });
-      }
-
-      isOpen.value = false;
-      emit("saved");
+      await addCategoriesToBoard(categoriesToInsert);
     }
-  } catch (e) {
+
+    toastSuccess({ title: "Board created!" });
+    isOpen.value = false;
+    emit("saved");
+  } catch (error) {
     toastError({
       title: "Something went wrong!",
-      description: e.message,
+      description: error.message,
     });
   } finally {
     isLoading.value = false;
   }
 };
 
-// Emit an event to sync the modelValue with the parent component
-const emit = defineEmits(["update:modelValue", "saved"]);
 const resetForm = () => {
-  Object.assign(state.value, { ...initialState.value }); // Create a fresh copy of initialState
-
+  state.value = { ...initialState };
   form.value?.clear();
 };
+
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => {

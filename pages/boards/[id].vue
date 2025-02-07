@@ -39,42 +39,63 @@
       </ClientOnly>
     </div>
   </section>
+  <UTabs :items="tabs" class="w-full">
+    <template #expenses>
+      <section class="flex justify-between my-10">
+        <div>
+          <h2 class="text-lg lg:text-2xl font-extrabold">List of expenses</h2>
+        </div>
+        <div>
+          <ExpenseModal
+            v-model="expenseModalIsOpen"
+            @saved="refresh($route.params.id)"
+            :members="boardMembers"
+          />
 
-  <section class="flex justify-between mb-10">
-    <div>
-      <h2 class="text-lg lg:text-2xl font-extrabold">List of expenses</h2>
-    </div>
-    <div>
-      <ExpenseModal
-        v-model="isOpen"
-        @saved="refresh($route.params.id)"
-        :members="boardMembers"
-      />
+          <UButton
+            icon="i-heroicons-plus-circle"
+            color="primary"
+            variant="solid"
+            label="Add new"
+            @click="expenseModalIsOpen = true"
+          />
+        </div>
+      </section>
 
-      <UButton
-        icon="i-heroicons-plus-circle"
-        color="primary"
-        variant="solid"
-        label="Add new"
-        @click="isOpen = true"
-      />
-    </div>
-  </section>
+      <section v-if="!pending">
+        <div v-for="expense in expenses" :key="expense.id">
+          <Expense
+            :expense="expense"
+            :loading="pending"
+            @deleted="refresh($route.params.id)"
+            @edited="refresh($route.params.id)"
+            :members="boardMembers"
+          />
+        </div>
+      </section>
+      <section v-else>
+        <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
+      </section>
+    </template>
+    <template #discounts>
+      <section class="flex justify-between my-10">
+        <div>
+          <h2 class="text-lg lg:text-2xl font-extrabold">List of discounts</h2>
+        </div>
+        <div>
+          <DiscountModal v-model="discountModalIsOpen" />
 
-  <section v-if="!pending">
-    <div v-for="expense in expenses" :key="expense.id">
-      <Expense
-        :expense="expense"
-        :loading="pending"
-        @deleted="refresh($route.params.id)"
-        @edited="refresh($route.params.id)"
-        :members="boardMembers"
-      />
-    </div>
-  </section>
-  <section v-else>
-    <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
-  </section>
+          <UButton
+            icon="i-heroicons-plus-circle"
+            color="primary"
+            variant="solid"
+            label="Add new"
+            @click="discountModalIsOpen = true"
+          />
+        </div>
+      </section>
+    </template>
+  </UTabs>
 </template>
 
 <script setup>
@@ -82,7 +103,8 @@ import { transactionViewOptions } from "~/constants";
 
 // Reactive variables
 const selectedView = ref(transactionViewOptions[1]); // Default selected view option
-const isOpen = ref(false);
+const expenseModalIsOpen = ref(false);
+const discountModalIsOpen = ref(false);
 const route = useRoute();
 const boardId = route.params.id;
 const { dates } = useSelectedTimePeriod(selectedView);
@@ -109,4 +131,15 @@ const categories = computed(() => {
 
   return categoryMap;
 });
+
+const tabs = [
+  {
+    slot: "expenses",
+    label: "List Of Expenses",
+  },
+  {
+    slot: "discounts",
+    label: "List Of Discounts",
+  },
+];
 </script>

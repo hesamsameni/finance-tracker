@@ -41,4 +41,17 @@ body {
 body {
   @apply dark:bg-gray-900 bg-white;
 }
+
+::-webkit-scrollbar {
+  width: 6px; /* for vertical scrollbars */
+  height: 6px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+}
 </style>

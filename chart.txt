@@ -1,0 +1,33 @@
+- components/
+  - add-board-modal.vue
+  - app-header.vue
+  - app-sidebar.vue
+  - delete-board-modal.vue
+  - discount-modal.vue
+  - edit-board-modal.vue
+  - expense-modal.vue
+  - expense.vue
+  - expenses-pie-chart.vue
+  - join-board-modal.vue
+  - users-widget.vue
+- composables/
+  - useAppToast.js
+  - useCurrency.js
+  - useFetchBoardCategories.js
+  - useFetchBoardExpenses.js
+  - useFetchBoards.js
+  - useRedirectIfAuthenticated.js
+  - useSelectedTimePeriod.js
+- layouts/
+  - default.vue
+- pages/
+  - boards/
+    - [id].vue
+  - confirm.vue
+  - index.vue
+  - join.vue
+  - login.vue
+- public/
+  - images/
+    - avatar.png
+- server/

@@ -9,6 +9,11 @@ const links = [
   ],
   [
     {
+      label: "Gen AI",
+      icon: "i-heroicons-user",
+      to: "/genai",
+    },
+    {
       label: "Github",
       icon: "i-heroicons-code-bracket-square",
       to: "https://github.com/hesamsameni/finance-tracker",
