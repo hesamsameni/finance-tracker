@@ -8,7 +8,10 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/supabase', 'nuxt-plotly'],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase', 'nuxt-plotly', 'nuxt-gtag'],
+  gtag: {
+    id: process.env.NUXT_PUBLIC_GA_ID
+  },
   supabase: {
     redirect: false
   },
