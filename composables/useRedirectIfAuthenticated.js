@@ -9,8 +9,8 @@ export const useRedirectIfAuthenticated = (defaultUrl = "/") => {
         const redirectUrl = route.query.redirect || defaultUrl;
         const inviteToken = route.query.inviteToken;
 
-        const finalUrl = token
-          ? `/join?token=${encodeURIComponent(inviteToken)}`
+        const finalUrl = inviteToken
+          ? `/join?inviteToken=${encodeURIComponent(inviteToken)}`
           : redirectUrl;
 
         router.push(finalUrl);
