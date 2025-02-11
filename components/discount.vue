@@ -9,6 +9,13 @@
     <div v-else>
       <div class="flex flex-col">
         <UCard class="mb-5">
+          <div class="text-right">
+            <UIcon
+              class="cursor-pointer"
+              name="i-heroicons-trash-20-solid"
+              @click="deleteDiscount(discount.id)"
+            />
+          </div>
           <div class="flex gap-5">
             <div class="flex flex-col items-center align-center">
               <div
@@ -128,6 +135,37 @@ const downloadFile = async (url, fileName) => {
   } catch (error) {
     console.error("Download error:", error);
     toastError({ title: "Error downloading file" });
+  }
+};
+
+const deleteDiscount = async (id) => {
+  isLoading.value = true;
+
+  try {
+    const { error: deleteError } = await supabase
+      .from("board_discounts")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    const { error: storageError } = await supabase.storage
+      .from("discounts")
+      .remove([props.discount.discount_file_name]);
+
+    if (storageError) throw storageError;
+
+    toastSuccess({
+      title: "Discount Deleted",
+    });
+    emit("deleted", id);
+  } catch (exception) {
+    toastError({
+      title: "Something went wrong!",
+      description: exception.message,
+    });
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>

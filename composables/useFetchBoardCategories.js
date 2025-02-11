@@ -1,11 +1,11 @@
 export const useFetchBoardCategories = () => {
   const supabase = useSupabaseClient();
-  const pending = ref(false);
+  const categoriesPending = ref(false);
   const error = ref(null);
   const categories = ref([]);
 
   const getCategories = async (boardId) => {
-    pending.value = true;
+    categoriesPending.value = true;
     error.value = null;
 
     try {
@@ -25,13 +25,13 @@ export const useFetchBoardCategories = () => {
       categories.value = [];
       return [];
     } finally {
-      pending.value = false;
+      categoriesPending.value = false;
     }
   };
 
   return {
     categories,
-    pending,
+    categoriesPending,
     error,
     getCategories,
   };
