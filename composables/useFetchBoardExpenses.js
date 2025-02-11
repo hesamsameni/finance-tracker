@@ -45,7 +45,7 @@ export const useFetchBoardExpenses = (period, boardId) => {
     }
   };
 
-  const refresh = async (boardId) => {
+  const refreshExpenses = async (boardId) => {
     expenses.value = await fetchExpenses(boardId);
   };
 
@@ -77,7 +77,7 @@ export const useFetchBoardExpenses = (period, boardId) => {
     boardMembers: {
       all: boardMembers,
     },
-    refresh,
+    refreshExpenses,
     pending,
     getUsers: loadBoardMembers,
   };

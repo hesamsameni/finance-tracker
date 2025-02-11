@@ -48,7 +48,7 @@
         <div>
           <ExpenseModal
             v-model="expenseModalIsOpen"
-            @saved="refresh($route.params.id)"
+            @saved="refreshExpenses($route.params.id)"
             :members="boardMembers"
           />
 
@@ -67,8 +67,8 @@
           <Expense
             :expense="expense"
             :loading="pending"
-            @deleted="refresh($route.params.id)"
-            @edited="refresh($route.params.id)"
+            @deleted="refreshExpenses($route.params.id)"
+            @edited="refreshExpenses($route.params.id)"
             :members="boardMembers"
           />
         </div>
@@ -83,7 +83,11 @@
           <h2 class="text-lg lg:text-2xl font-extrabold">List of discounts</h2>
         </div>
         <div>
-          <DiscountModal v-model="discountModalIsOpen" />
+          <DiscountModal
+            v-model="discountModalIsOpen"
+            :board-id="$route.params.id"
+            @saved="refreshDiscounts($route.params.id)"
+          />
 
           <UButton
             icon="i-heroicons-plus-circle"
@@ -93,6 +97,19 @@
             @click="discountModalIsOpen = true"
           />
         </div>
+      </section>
+      <section v-if="!discountsPending">
+        <div v-if="discounts.length > 0">
+          <div v-for="discount in discounts" :key="discount.id">
+            <Discount :discount="discount" :loading="discountsPending" />
+          </div>
+        </div>
+        <div v-else>
+          <p class="text-center">No valid discount available.</p>
+        </div>
+      </section>
+      <section v-else>
+        <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
       </section>
     </template>
   </UTabs>
@@ -111,13 +128,20 @@ const { dates } = useSelectedTimePeriod(selectedView);
 
 const {
   pending,
-  refresh,
+  refreshExpenses,
   getUsers,
   expenses: { all: expenses, getUserExpenses },
   boardMembers: { all: boardMembers },
 } = useFetchBoardExpenses(dates, boardId);
-await refresh(boardId);
+await refreshExpenses(boardId);
 await getUsers(boardId);
+
+const {
+  discountsPending,
+  refreshDiscounts,
+  discounts: { all: discounts },
+} = useFetchBoardDiscounts(boardId);
+await refreshDiscounts(boardId);
 
 // Add categories data computation
 // Update categories computation
