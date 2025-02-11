@@ -46,7 +46,7 @@ export const useFetchBoardNotes = (boardId) => {
       const { error } = await supabase
         .from("board_notes")
         .update({ ...updatedNote })
-        .eq("id", boardId);
+        .eq("id", updatedNote.id);
 
       if (error) throw error;
       await refreshNotes(); // Refresh the notes after updating

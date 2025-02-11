@@ -241,14 +241,14 @@ const categories = computed(() => {
 });
 
 const openNoteModal = (note = null) => {
-  console.log("Selected Note:", note); // Debugging
-  selectedNote.value = note; // Set the selected note (null for creating a new note)
+  selectedNote.value = note;
   noteModalIsOpen.value = true;
 };
 
 // Handle saving a note (both create and edit)
 const handleNoteSaved = async (newNote) => {
   console.log("Selected Note (before save):", selectedNote.value); // Debugging
+  console.log("edited note:", newNote);
   if (selectedNote.value) {
     // Update existing note
     await updateNote({ ...newNote, id: selectedNote.value.id });
