@@ -75,7 +75,7 @@ export default defineEventHandler(async (event: H3Event) => {
 }
 
 2. DATA PROCESSING RULES:
-- Dates: Convert to ISO 8601 format (YYYY-MM-DD)
+- Dates: Convert to (YYYY-MM-DD)
 - Currency: Extract from discount_offer/document, use 3-letter ISO code (e.g., EUR, USD)
 - Missing values: Use "not-specified" (never null/empty)
 - Translation: All text to English

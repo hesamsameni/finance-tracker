@@ -50,6 +50,7 @@
             v-model="expenseModalIsOpen"
             @saved="refreshExpenses($route.params.id)"
             :members="boardMembers"
+            :categories="fetchedCategories"
           />
 
           <UButton
@@ -70,6 +71,7 @@
             @deleted="refreshExpenses($route.params.id)"
             @edited="refreshExpenses($route.params.id)"
             :members="boardMembers"
+            :categories="fetchedCategories"
           />
         </div>
       </section>
@@ -101,7 +103,11 @@
       <section v-if="!discountsPending">
         <div v-if="discounts.length > 0">
           <div v-for="discount in discounts" :key="discount.id">
-            <Discount :discount="discount" :loading="discountsPending" />
+            <Discount
+              :discount="discount"
+              :loading="discountsPending"
+              @deleted="refreshDiscounts($route.params.id)"
+            />
           </div>
         </div>
         <div v-else>
@@ -143,8 +149,14 @@ const {
 } = useFetchBoardDiscounts(boardId);
 await refreshDiscounts(boardId);
 
-// Add categories data computation
-// Update categories computation
+const {
+  categoriesPending,
+  error,
+  getCategories,
+  categories: fetchedCategories,
+} = useFetchBoardCategories();
+await getCategories(boardId); // Pass boardId when calling
+
 const categories = computed(() => {
   const categoryMap = {};
 

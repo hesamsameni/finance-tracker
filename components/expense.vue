@@ -119,6 +119,7 @@ const props = defineProps({
   expense: Object,
   loading: Boolean,
   members: Object,
+  categories: Array,
 });
 const isEdittingModalOpen = ref(false);
 const { currency } = useCurrency(props.expense.amount);
@@ -140,8 +141,8 @@ const paidByNickname = computed(() => {
 });
 
 const categoryDetails = computed(() => {
-  if (categories.value && categories.value.length > 0) {
-    const category = categories.value.find(
+  if (props.categories && props.categories.length > 0) {
+    const category = props.categories.find(
       (cat) => cat.label === props.expense.category
     );
     return category
@@ -206,7 +207,4 @@ const formatTitle = (title) => {
   return title.charAt(0).toUpperCase() + title.slice(1);
 };
 const route = useRoute();
-
-const { pending, error, getCategories, categories } = useFetchBoardCategories();
-await getCategories(route.params.id); // Pass boardId when calling
 </script>

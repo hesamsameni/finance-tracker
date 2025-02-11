@@ -123,6 +123,7 @@ const props = defineProps({
     required: false,
   },
   members: Object,
+  categories: Array,
 });
 
 const isEditing = computed(() => !!props.expense);
@@ -202,7 +203,4 @@ const isOpen = computed({
     emit("update:modelValue", value);
   },
 });
-
-const { pending, error, getCategories, categories } = useFetchBoardCategories();
-await getCategories(route.params.id); // Pass boardId when calling
 </script>
