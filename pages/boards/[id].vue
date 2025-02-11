@@ -118,6 +118,71 @@
         <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
       </section>
     </template>
+    <template #notes>
+      <section class="flex justify-between my-10">
+        <div>
+          <h2 class="text-lg lg:text-2xl font-extrabold">Notes</h2>
+        </div>
+        <div>
+          <UButton
+            icon="i-heroicons-plus-circle"
+            color="primary"
+            variant="solid"
+            label="Add new"
+            @click="openNoteModal(null)"
+          />
+        </div>
+      </section>
+
+      <section v-if="!notesPending">
+        <UCard v-for="note in notes" :key="note.id" class="mb-4">
+          <div class="flex items-center justify-between mb-5">
+            <h3
+              class="text-lg font-semibold text-primary-600 dark:text-primary-400"
+            >
+              {{ note.title }}
+            </h3>
+            <div class="flex items-center gap-2">
+              <UButton
+                icon="i-heroicons-pencil"
+                color="gray"
+                variant="ghost"
+                @click="openNoteModal(note)"
+              />
+              <UButton
+                icon="i-heroicons-trash"
+                color="red"
+                variant="ghost"
+                @click="deleteNote(note)"
+              />
+            </div>
+          </div>
+          <ul class="space-y-2">
+            <li
+              v-for="(item, index) in note.content.split(', ')"
+              :key="index"
+              class="flex items-center text-gray-700 dark:text-gray-300"
+            >
+              <UIcon
+                name="i-heroicons-check-circle-20-solid"
+                class="w-4 h-4 mr-2 text-primary-500 flex-shrink-0"
+              />
+              <span class="truncate">{{ item }}</span>
+            </li>
+          </ul>
+        </UCard>
+      </section>
+      <section v-else>
+        <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
+      </section>
+
+      <NoteModal
+        v-model="noteModalIsOpen"
+        @saved="handleNoteSaved"
+        :board-id="boardId"
+        :note="selectedNote"
+      />
+    </template>
   </UTabs>
 </template>
 
@@ -128,6 +193,9 @@ import { transactionViewOptions } from "~/constants";
 const selectedView = ref(transactionViewOptions[1]); // Default selected view option
 const expenseModalIsOpen = ref(false);
 const discountModalIsOpen = ref(false);
+const noteModalIsOpen = ref(false);
+
+const selectedNote = ref(null); // Holds the note being edited
 const route = useRoute();
 const boardId = route.params.id;
 const { dates } = useSelectedTimePeriod(selectedView);
@@ -155,7 +223,11 @@ const {
   getCategories,
   categories: fetchedCategories,
 } = useFetchBoardCategories();
-await getCategories(boardId); // Pass boardId when calling
+await getCategories(boardId);
+
+const { notes, notesPending, refreshNotes, addNote, updateNote, deleteNote } =
+  useFetchBoardNotes(boardId);
+await refreshNotes(boardId);
 
 const categories = computed(() => {
   const categoryMap = {};
@@ -168,6 +240,26 @@ const categories = computed(() => {
   return categoryMap;
 });
 
+const openNoteModal = (note = null) => {
+  console.log("Selected Note:", note); // Debugging
+  selectedNote.value = note; // Set the selected note (null for creating a new note)
+  noteModalIsOpen.value = true;
+};
+
+// Handle saving a note (both create and edit)
+const handleNoteSaved = async (newNote) => {
+  console.log("Selected Note (before save):", selectedNote.value); // Debugging
+  if (selectedNote.value) {
+    // Update existing note
+    await updateNote({ ...newNote, id: selectedNote.value.id });
+  } else {
+    // Add new note
+    await addNote(newNote);
+  }
+  await refreshNotes(); // Refresh the notes list
+  selectedNote.value = null; // Reset the selected note
+};
+
 const tabs = [
   {
     slot: "expenses",
@@ -176,6 +268,10 @@ const tabs = [
   {
     slot: "discounts",
     label: "List Of Discounts",
+  },
+  {
+    slot: "notes",
+    label: "List Of Notes",
   },
 ];
 </script>
