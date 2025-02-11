@@ -18,6 +18,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     deepseekApiKey: process.env.NUXT_DEEPSEEK_API_KEY,
     openaiApiKey: process.env.NUXT_OPENAI_API_KEY,
+    supaBaseURL: process.env.SUPABASE_URL,
+    supaBaseKey: process.env.SUPABASE_KEY,
     public: {
       baseUrl: process.env.BASE_URL ?? "http://localhost:3000",
     },
