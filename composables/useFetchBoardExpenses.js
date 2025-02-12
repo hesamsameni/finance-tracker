@@ -4,7 +4,7 @@ export const useFetchBoardExpenses = (period, boardId) => {
   const expenses = ref([]);
   const boardMembers = ref([]);
 
-  watch(period, async () => await refresh(boardId));
+  watch(period, async () => await refreshExpenses(boardId));
 
   const getBoardMembers = async (boardId) => {
     pending.value = true;
