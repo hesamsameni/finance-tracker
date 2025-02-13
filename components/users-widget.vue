@@ -6,7 +6,7 @@
 
     <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
       <USkeleton class="h-8 w-full" v-if="loading" />
-      <div v-else>{{ currency }}</div>
+      <div v-else>{{ formattedCurrency }}</div>
     </div>
   </div>
 </template>
@@ -18,7 +18,8 @@ const props = defineProps({
   color: String,
   loading: Boolean,
   userId: String,
+  currency: String,
 });
 const { amount } = toRefs(props);
-const { currency } = useCurrency(amount);
+const { formattedCurrency } = useCurrency(amount, props.currency);
 </script>

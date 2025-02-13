@@ -98,15 +98,16 @@
             v-model="state.description"
           />
         </UFormGroup>
-
-        <UButton
-          type="submit"
-          color="black"
-          variant="solid"
-          label="Save"
-          @click="saveForm"
-          :loading="isLoading"
-        />
+        <div class="flex justify-end mt-4">
+          <UButton
+            type="submit"
+            color="primary"
+            variant="solid"
+            label="Save"
+            @click="saveForm"
+            :loading="isLoading"
+          />
+        </div>
       </UForm>
     </UCard>
   </UModal>

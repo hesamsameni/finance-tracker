@@ -28,11 +28,16 @@
         :userId="user.user_id"
         :amount="getUserExpenses(user.user_id)"
         :loading="pending"
+        :currency="$route.query.currency"
       />
     </div>
     <div class="flex justify-center">
       <ClientOnly>
-        <ExpensesPieChart v-if="expenses.length" :categories="categories" />
+        <ExpensesPieChart
+          v-if="expenses.length"
+          :categories="categoriesForChart"
+          :currency="$route.query.currency"
+        />
         <p v-else class="text-center text-gray-500">
           No expenses to display chart.
         </p>
@@ -72,6 +77,7 @@
             @edited="refreshExpenses($route.params.id)"
             :members="boardMembers"
             :categories="fetchedCategories"
+            :currency="$route.query.currency"
           />
         </div>
       </section>
@@ -217,19 +223,14 @@ const {
 } = useFetchBoardDiscounts(boardId);
 await refreshDiscounts(boardId);
 
-const {
-  categoriesPending,
-  error,
-  getCategories,
-  categories: fetchedCategories,
-} = useFetchBoardCategories();
-await getCategories(boardId);
+const { categories: fetchedCategories, categoriesPending } =
+  useFetchBoardCategories(boardId);
 
 const { notes, notesPending, refreshNotes, addNote, updateNote, deleteNote } =
   useFetchBoardNotes(boardId);
 await refreshNotes(boardId);
 
-const categories = computed(() => {
+const categoriesForChart = computed(() => {
   const categoryMap = {};
 
   expenses.value.forEach((expense) => {
@@ -247,31 +248,27 @@ const openNoteModal = (note = null) => {
 
 // Handle saving a note (both create and edit)
 const handleNoteSaved = async (newNote) => {
-  console.log("Selected Note (before save):", selectedNote.value); // Debugging
-  console.log("edited note:", newNote);
   if (selectedNote.value) {
-    // Update existing note
     await updateNote({ ...newNote, id: selectedNote.value.id });
   } else {
-    // Add new note
     await addNote(newNote);
   }
-  await refreshNotes(); // Refresh the notes list
-  selectedNote.value = null; // Reset the selected note
+  await refreshNotes();
+  selectedNote.value = null;
 };
 
 const tabs = [
   {
     slot: "expenses",
-    label: "List Of Expenses",
-  },
-  {
-    slot: "discounts",
-    label: "List Of Discounts",
+    label: "Expenses",
   },
   {
     slot: "notes",
-    label: "List Of Notes",
+    label: "Notes",
+  },
+  {
+    slot: "discounts",
+    label: "Discounts",
   },
 ];
 </script>

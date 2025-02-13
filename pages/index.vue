@@ -34,7 +34,9 @@
             class="block px-6 py-8 border not-prose rounded-lg border-gray-200 dark:border-gray-800 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
           >
             <div class="flex justify-between items-center">
-              <nuxt-link :to="`/boards/${board.id}?title=${board.title}`">
+              <nuxt-link
+                :to="`/boards/${board.id}?title=${board.title}&currency=${board.currency}`"
+              >
                 <div
                   class="inline-flex items-center rounded-full p-1.5 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
                 >
@@ -64,7 +66,9 @@
               </UPopover>
             </div>
             <div class="mt-4">
-              <nuxt-link :to="`/boards/${board.id}?title=${board.title}`">
+              <nuxt-link
+                :to="`/boards/${board.id}?title=${board.title}&currency=${board.currency}`"
+              >
                 <div
                   class="truncate max-w-[200px] overflow-hidden whitespace-nowrap font-bold text-gray-900 dark:text-white text-[15px] mb-1"
                   :title="formatTitle(board.title)"

@@ -16,7 +16,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  currency: String,
 });
+
+console.log("props", props.currency);
 
 const colors = {
   red: "#f44336",
@@ -31,25 +34,32 @@ const colors = {
   pink: "#e91e63",
 };
 
-const data = computed(() => {
-  const filteredCategories = Object.entries(props.categories).filter(
+const filteredCategories = computed(() =>
+  Object.entries(props.categories).filter(
     ([key]) => key.toLowerCase() !== "carry over"
-  );
+  )
+);
 
+const data = computed(() => {
   return [
     {
-      values: filteredCategories.map(([, value]) => value),
-      labels: filteredCategories.map(([key]) => key),
+      values: filteredCategories.value.map(([, value]) => value),
+      labels: filteredCategories.value.map(([key]) => key),
+      customdata: filteredCategories.value.map(([key, value]) => {
+        const { formattedCurrency } = useCurrency(value, props.currency);
+        return formattedCurrency.value;
+      }),
+      texttemplate: "<b>%{label}</b><br>%{customdata}",
+
       type: "pie",
       hole: 0.35,
       marker: {
-        colors: filteredCategories.map(([key]) => {
+        colors: filteredCategories.value.map(([key]) => {
           const category = categoryMetadata.find((cat) => cat.label === key);
           return category ? colors[category.color] : "#cccccc"; // Fallback color
         }),
       },
-      textinfo: "percent+label",
-      hoverinfo: "label+value+percent",
+      hoverinfo: "label+value",
       textposition: "inside",
     },
   ];
@@ -61,7 +71,7 @@ const layout = ref({
   paper_bgcolor: "rgba(0,0,0,0)",
   showlegend: false,
   font: {
-    family: "Raleway",
+    family: "Inter",
     weight: 500,
   },
   margin: {
