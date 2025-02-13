@@ -28,10 +28,10 @@ export function useBoardApi() {
   };
 
   const updateBoard = async (boardId, updates) => {
-    const { id, title, currency, invite_token } = updates;
+    const { id, title, currency, invite_token, auto_carry_over } = updates;
     const { data, error } = await supabase
       .from("boards")
-      .update({ id, title, currency, invite_token })
+      .update({ id, title, currency, invite_token, auto_carry_over })
       .eq("id", boardId)
       .select();
 

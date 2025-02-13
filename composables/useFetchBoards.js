@@ -24,7 +24,7 @@ export const useFetchBoards = () => {
       const { data, error } = await supabase
         .from("boards")
         .select(
-          "id, title, currency, invite_token, categories(id, label, icon, color)"
+          "id, title, currency, invite_token, auto_carry_over, categories(id, label, icon, color)"
         )
         .eq("is_visible", true)
         .in("id", boardIds);

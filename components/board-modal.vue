@@ -33,12 +33,30 @@
             <UInput type="text" v-model="state.currency" />
           </UFormGroup>
 
-          <UFormGroup label="Categories" class="mb-5">
+          <UFormGroup
+            label="Automatically balance member payments each month?"
+            name="auto_carry_over"
+            class="mb-5"
+          >
+            <div class="flex">
+              <span class="text-gray-500 text-xs">
+                When enabled, the app will calculate payment imbalances from the
+                previous month and create adjustment entries to ensure fair
+                splits.
+              </span>
+              <div>
+                <UToggle v-model="state.auto_carry_over" />
+              </div>
+            </div>
+          </UFormGroup>
+          <UDivider label="Categories" size="sm" />
+
+          <UFormGroup class="my-5">
             <div class="grid grid-cols-2 gap-4 mt-5">
               <div
                 v-for="category in availableCategories"
                 :key="category.label"
-                class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer"
+                class="flex items-center space-x-2 p-2 border rounded-lg cursor-pointer"
                 :class="
                   selectedCategories.includes(category.label)
                     ? 'border-primary-500'
@@ -48,7 +66,7 @@
               >
                 <UIcon
                   :name="category.icon"
-                  class="w-5 h-5"
+                  class="w-4 h-4"
                   :class="
                     selectedCategories.includes(category.label)
                       ? 'text-primary-500'
@@ -56,6 +74,7 @@
                   "
                 />
                 <span
+                  class="text-sm"
                   :class="
                     selectedCategories.includes(category.label)
                       ? 'text-primary-500'
@@ -67,14 +86,16 @@
             </div>
           </UFormGroup>
 
-          <UButton
-            type="submit"
-            color="black"
-            variant="solid"
-            :label="saveButtonLabel"
-            @click="handleSave"
-            :loading="isLoading"
-          />
+          <div class="flex justify-end mt-4">
+            <UButton
+              type="submit"
+              color="primary"
+              variant="solid"
+              :label="saveButtonLabel"
+              @click="handleSave"
+              :loading="isLoading"
+            />
+          </div>
         </UForm>
       </template>
 
@@ -173,6 +194,7 @@ const schema = z.object({
 const initialState = computed(() => ({
   title: props.board?.title || "",
   currency: props.board?.currency || "eur",
+  auto_carry_over: props.board?.auto_carry_over || false,
   nickname: props.board?.nickname || user.value?.user_metadata?.full_name || "",
   invite_token: props.board?.invite_token || nanoid(16),
 }));

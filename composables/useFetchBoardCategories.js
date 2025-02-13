@@ -1,4 +1,4 @@
-export const useFetchBoardCategories = () => {
+export const useFetchBoardCategories = (boardId) => {
   const supabase = useSupabaseClient();
   const categoriesPending = ref(false);
   const error = ref(null);
@@ -22,12 +22,16 @@ export const useFetchBoardCategories = () => {
     } catch (err) {
       error.value = err;
       console.error("Error fetching categories:", err);
-      categories.value = [];
       return [];
     } finally {
       categoriesPending.value = false;
     }
   };
+
+  // Automatically fetch categories if boardId is provided
+  if (boardId) {
+    getCategories(boardId);
+  }
 
   return {
     categories,

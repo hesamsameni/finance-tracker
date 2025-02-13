@@ -74,6 +74,9 @@
               </div>
             </div>
           </div>
+          <span class="flex flex-end text-red-500" v-if="discount.expired"
+            >EXPIRED</span
+          >
         </UCard>
       </div>
     </div>

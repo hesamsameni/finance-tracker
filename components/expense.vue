@@ -10,6 +10,7 @@
       <ExpenseModal
         v-model="isEdittingModalOpen"
         :expense="expense"
+        :categories="categories"
         @saved="emit('edited')"
       />
       <div
@@ -44,7 +45,7 @@
           </div>
         </div>
         <div class="flex items-center justify-end">
-          <div class="text-center">{{ currency }}</div>
+          <div class="text-center">{{ formattedCurrency }}</div>
           <div>
             <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
               <UButton
@@ -102,7 +103,7 @@
               </div>
             </div>
             <div class="flex flex-col justify-end space-x-4">
-              <div class="text-right mb-2">{{ currency }}</div>
+              <div class="text-right mb-2">{{ formattedCurrency }}</div>
               <div class="text-right">{{ formatTitle(paidByNickname) }}</div>
             </div>
           </div>
@@ -120,9 +121,11 @@ const props = defineProps({
   loading: Boolean,
   members: Object,
   categories: Array,
+  currency: String,
 });
+
 const isEdittingModalOpen = ref(false);
-const { currency } = useCurrency(props.expense.amount);
+const { formattedCurrency } = useCurrency(props.expense.amount, props.currency);
 const { toastError, toastSuccess } = useAppToast();
 const emit = defineEmits(["deleted", "edited"]);
 const isLoading = ref(false);

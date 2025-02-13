@@ -25,7 +25,7 @@ useHead({
     },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Raleway&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Inter&display=swap",
       crossorigin: "",
     },
   ],
@@ -35,7 +35,7 @@ useHead({
 <style>
 /* Set the font family for the entire site */
 body {
-  font-family: "Raleway";
+  font-family: "Inter";
 }
 /* Set the background color for the entire site */
 body {
