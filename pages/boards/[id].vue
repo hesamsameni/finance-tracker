@@ -18,7 +18,10 @@
   <section
     class="flex flex-col-reverse justify-center lg:flex-row lg:justify-between lg:mb-20"
   >
-    <div class="flex justify-between lg:flex-col">
+    <div
+      class="flex justify-between lg:flex-col"
+      v-if="boardMembers.length > 1"
+    >
       <UsersWidget
         v-for="(user, i) in boardMembers"
         class="my-2"
@@ -31,7 +34,10 @@
         :currency="$route.query.currency"
       />
     </div>
-    <div class="flex justify-center">
+    <div
+      class="flex justify-center"
+      v-if="Object.keys(categoriesForChart).length > 1"
+    >
       <ClientOnly>
         <ExpensesPieChart
           v-if="expenses.length"
@@ -48,7 +54,7 @@
     <template #expenses>
       <section class="flex justify-between my-10">
         <div>
-          <h2 class="text-lg lg:text-2xl font-extrabold">List of expenses</h2>
+          <h2 class="text-lg lg:text-2xl font-extrabold">List of Expenses</h2>
         </div>
         <div>
           <ExpenseModal
@@ -69,16 +75,21 @@
       </section>
 
       <section v-if="!pending">
-        <div v-for="expense in expenses" :key="expense.id">
-          <Expense
-            :expense="expense"
-            :loading="pending"
-            @deleted="refreshExpenses($route.params.id)"
-            @edited="refreshExpenses($route.params.id)"
-            :members="boardMembers"
-            :categories="fetchedCategories"
-            :currency="$route.query.currency"
-          />
+        <div v-if="expenses.length">
+          <div v-for="expense in expenses" :key="expense.id">
+            <Expense
+              :expense="expense"
+              :loading="pending"
+              @deleted="refreshExpenses($route.params.id)"
+              @edited="refreshExpenses($route.params.id)"
+              :members="boardMembers"
+              :categories="fetchedCategories"
+              :currency="$route.query.currency"
+            />
+          </div>
+        </div>
+        <div v-else>
+          <p class="text-center">You don't have any expenses yet.</p>
         </div>
       </section>
       <section v-else>
@@ -88,7 +99,7 @@
     <template #discounts>
       <section class="flex justify-between my-10">
         <div>
-          <h2 class="text-lg lg:text-2xl font-extrabold">List of discounts</h2>
+          <h2 class="text-lg lg:text-2xl font-extrabold">List of Discounts</h2>
         </div>
         <div>
           <DiscountModal
@@ -127,7 +138,7 @@
     <template #notes>
       <section class="flex justify-between my-10">
         <div>
-          <h2 class="text-lg lg:text-2xl font-extrabold">Notes</h2>
+          <h2 class="text-lg lg:text-2xl font-extrabold">List of Notes</h2>
         </div>
         <div>
           <UButton
@@ -141,42 +152,47 @@
       </section>
 
       <section v-if="!notesPending">
-        <UCard v-for="note in notes" :key="note.id" class="mb-4">
-          <div class="flex items-center justify-between mb-5">
-            <h3
-              class="text-lg font-semibold text-primary-600 dark:text-primary-400"
-            >
-              {{ note.title }}
-            </h3>
-            <div class="flex items-center gap-2">
-              <UButton
-                icon="i-heroicons-pencil"
-                color="gray"
-                variant="ghost"
-                @click="openNoteModal(note)"
-              />
-              <UButton
-                icon="i-heroicons-trash"
-                color="red"
-                variant="ghost"
-                @click="deleteNote(note)"
-              />
+        <div v-if="notes.length">
+          <UCard v-for="note in notes" :key="note.id" class="mb-4">
+            <div class="flex items-center justify-between mb-5">
+              <h3
+                class="text-lg font-semibold text-primary-600 dark:text-primary-400"
+              >
+                {{ note.title }}
+              </h3>
+              <div class="flex items-center gap-2">
+                <UButton
+                  icon="i-heroicons-pencil"
+                  color="gray"
+                  variant="ghost"
+                  @click="openNoteModal(note)"
+                />
+                <UButton
+                  icon="i-heroicons-trash"
+                  color="red"
+                  variant="ghost"
+                  @click="deleteNote(note)"
+                />
+              </div>
             </div>
-          </div>
-          <ul class="space-y-2">
-            <li
-              v-for="(item, index) in note.content.split(', ')"
-              :key="index"
-              class="flex items-center text-gray-700 dark:text-gray-300"
-            >
-              <UIcon
-                name="i-heroicons-check-circle-20-solid"
-                class="w-4 h-4 mr-2 text-primary-500 flex-shrink-0"
-              />
-              <span class="truncate">{{ item }}</span>
-            </li>
-          </ul>
-        </UCard>
+            <ul class="space-y-2">
+              <li
+                v-for="(item, index) in note.content.split(', ')"
+                :key="index"
+                class="flex items-center text-gray-700 dark:text-gray-300"
+              >
+                <UIcon
+                  name="i-heroicons-check-circle-20-solid"
+                  class="w-4 h-4 mr-2 text-primary-500 flex-shrink-0"
+                />
+                <span class="truncate">{{ item }}</span>
+              </li>
+            </ul>
+          </UCard>
+        </div>
+        <div v-else>
+          <p class="text-center">You don't have any notes.</p>
+        </div>
       </section>
       <section v-else>
         <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />

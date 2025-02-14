@@ -42,4 +42,9 @@ export const categories = [
     icon: "fluent-emoji-high-contrast:movie-camera",
     color: "amber",
   },
+  {
+    label: "Transportation",
+    icon: "fluent-emoji-high-contrast:bus",
+    color: "stone",
+  },
 ];

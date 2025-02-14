@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",
+    "@iconify-json/fluent-emoji-high-contrast": "^1.2.3",
     "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
     "nuxt-gtag": "^3.0.2",
