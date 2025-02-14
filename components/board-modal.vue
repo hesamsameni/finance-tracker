@@ -83,8 +83,57 @@
                   >{{ category.label }}</span
                 >
               </div>
+              <div
+                class="flex items-center space-x-2 p-2 border rounded-lg cursor-pointer border-gray-200 hover:border-gray-300"
+                @click="showCustomCategoryForm = true"
+              >
+                <UIcon name="i-heroicons-plus" class="w-4 h-4 text-gray-400" />
+                <span class="text-sm text-gray-400">Add Custom</span>
+              </div>
             </div>
           </UFormGroup>
+
+          <div
+            v-if="showCustomCategoryForm"
+            class="mt-4 p-4 border border-primary-500 rounded-lg space-y-4"
+          >
+            <UFormGroup label="Category Name" required>
+              <UInput
+                v-model="customCategoryName"
+                placeholder="Enter category name"
+              />
+            </UFormGroup>
+
+            <UFormGroup label="Select Icon" required>
+              <CustomIconSelector
+                @select-icon="selectedIcon = $event"
+                :selected-icon="selectedIcon"
+                :selected-color="selectedColor"
+              />
+            </UFormGroup>
+
+            <UFormGroup label="Select Color" required>
+              <CustomColorPicker
+                @select-color="selectedColor = $event"
+                :selected-color="selectedColor"
+                class="mt-2"
+              />
+            </UFormGroup>
+
+            <div class="flex justify-end gap-2">
+              <UButton
+                label="Cancel"
+                color="gray"
+                @click="cancelCustomCategory"
+              />
+              <UButton
+                label="Add Category"
+                color="primary"
+                :disabled="!customCategoryName || !selectedIcon"
+                @click="addCustomCategory"
+              />
+            </div>
+          </div>
 
           <div class="flex justify-end mt-4">
             <UButton
@@ -165,7 +214,11 @@ const user = useSupabaseUser();
 const form = ref();
 const isLoading = ref(false);
 const selectedCategories = ref([]);
-const availableCategories = ref(categories);
+const showCustomCategoryForm = ref(false);
+const customCategoryName = ref("");
+const selectedIcon = ref("");
+const availableCategories = ref([...categories]);
+const selectedColor = ref("pink");
 
 // Computed
 const headerText = computed(() => {
@@ -202,6 +255,26 @@ const initialState = computed(() => ({
 const state = ref({ ...initialState.value });
 
 // Methods
+
+const addCustomCategory = () => {
+  const newCategory = {
+    label: customCategoryName.value,
+    icon: selectedIcon.value,
+    color: selectedColor.value,
+    isCustom: true,
+  };
+
+  availableCategories.value.push(newCategory);
+  toggleCategory(newCategory.label);
+  cancelCustomCategory();
+};
+
+const cancelCustomCategory = () => {
+  showCustomCategoryForm.value = false;
+  customCategoryName.value = "";
+  selectedIcon.value = "";
+};
+
 const toggleCategory = (label) => {
   const index = selectedCategories.value.indexOf(label);
   index === -1
@@ -294,9 +367,18 @@ watch(
   (newBoard) => {
     if (!newBoard) return;
 
-    state.value = { ...initialState.value };
+    // Reset available categories to default + any existing custom
+    availableCategories.value = [...categories];
+
     if (newBoard?.categories) {
       selectedCategories.value = newBoard.categories.map((c) => c.label);
+
+      // Add existing custom categories
+      newBoard.categories.forEach((category) => {
+        if (!categories.some((c) => c.label === category.label)) {
+          availableCategories.value.push(category);
+        }
+      });
     }
   },
   { immediate: true }
