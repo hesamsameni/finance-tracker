@@ -19,7 +19,6 @@ const props = defineProps({
   currency: String,
 });
 
-console.log("props", props.currency);
 
 const colors = {
   red: "#f44336",
