@@ -220,42 +220,32 @@ const noteModalIsOpen = ref(false);
 const selectedNote = ref(null); // Holds the note being edited
 const route = useRoute();
 const boardId = route.params.id;
-const { dates } = useSelectedTimePeriod(selectedView);
 
 const {
   pending,
   refreshExpenses,
   getUsers,
-  expenses: { all: expenses, getUserExpenses },
-  boardMembers: { all: boardMembers },
-} = useFetchBoardExpenses(dates, boardId);
-await refreshExpenses(boardId);
-await getUsers(boardId);
-
-const {
+  expenses,
+  getUserExpenses,
+  boardMembers,
   discountsPending,
   refreshDiscounts,
-  discounts: { all: discounts },
-} = useFetchBoardDiscounts(boardId);
+  discounts,
+  fetchedCategories,
+  categoriesPending,
+  notes,
+  notesPending,
+  refreshNotes,
+  addNote,
+  updateNote,
+  deleteNote,
+  categoriesForChart,
+} = useBoardData(boardId, selectedView);
+
+await refreshExpenses(boardId);
+await getUsers(boardId);
 await refreshDiscounts(boardId);
-
-const { categories: fetchedCategories, categoriesPending } =
-  useFetchBoardCategories(boardId);
-
-const { notes, notesPending, refreshNotes, addNote, updateNote, deleteNote } =
-  useFetchBoardNotes(boardId);
 await refreshNotes(boardId);
-
-const categoriesForChart = computed(() => {
-  const categoryMap = {};
-
-  expenses.value.forEach((expense) => {
-    const category = expense.category || "Uncategorized";
-    categoryMap[category] = (categoryMap[category] || 0) + expense.amount;
-  });
-
-  return categoryMap;
-});
 
 const openNoteModal = (note = null) => {
   selectedNote.value = note;
