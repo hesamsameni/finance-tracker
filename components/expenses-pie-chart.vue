@@ -1,14 +1,14 @@
 <template>
-  <client-only>
-    <nuxt-plotly
-      :data="data"
-      :layout="layout"
-      :display-mode-bar="false"
-    ></nuxt-plotly>
-  </client-only>
+  <!-- Responsive container: adjusts width and maintains a 2:1 aspect ratio -->
+  <div class="chart-wrapper mb-10">
+    <v-chart :option="chartOptions" autoresize />
+  </div>
 </template>
 
 <script setup>
+import { computed } from "vue";
+import { useCurrency } from "~/composables/useCurrency"; // Import the useCurrency composable
+
 const props = defineProps({
   categories: {
     type: Object,
@@ -50,56 +50,56 @@ const tailwindColors = {
   stone: { 400: "#a8a29e", 500: "#78716c" },
 };
 
-const data = computed(() => {
-  return [
+const chartOptions = computed(() => ({
+  backgroundColor: "rgba(0,0,0,0)",
+  tooltip: {
+    trigger: "item",
+    formatter: "{b}: {c} ({d}%)",
+  },
+  series: [
     {
-      values: filteredCategories.value.map(([, value]) => value),
-      labels: filteredCategories.value.map(([key]) => key),
-      customdata: filteredCategories.value.map(([key, value]) => {
-        const { formattedCurrency } = useCurrency(value, props.currency);
-        return formattedCurrency.value;
-      }),
-      texttemplate: "<b>%{label}</b><br>%{customdata}",
       type: "pie",
-      hole: 0.35,
-      marker: {
-        colors: filteredCategories.value.map(([key]) => {
-          const category = props.categoryMetadata.find(
-            (cat) => cat.label === key
-          );
-          if (category && tailwindColors[category.color]) {
-            // Use hue 400 if isCustom is true, else hue 500
-            return tailwindColors[category.color][
-              category.isCustom ? 400 : 500
-            ];
-          }
-          // Fallback to gray hue 500 if category not found or color missing
-          return tailwindColors.gray[500];
-        }),
+      radius: ["100%", "25%"],
+      padAngle: 2,
+      itemStyle: {
+        borderRadius: 5,
       },
-      hoverinfo: "label+value",
-      textposition: "inside",
+      data: filteredCategories.value.map(([key, value]) => {
+        const { formattedCurrency } = useCurrency(value, props.currency);
+        const category = props.categoryMetadata.find(
+          (cat) => cat.label === key
+        );
+        const color =
+          category && tailwindColors[category.color]
+            ? tailwindColors[category.color][category.isCustom ? 400 : 500]
+            : tailwindColors.gray[500];
+        return {
+          value,
+          name: key,
+          customdata: formattedCurrency.value,
+          itemStyle: { color },
+        };
+      }),
+      label: {
+        position: "inner",
+        formatter: (params) => {
+          return `{bold|${params.name}} \n ${params.data.customdata}`;
+        },
+        rich: {
+          bold: {
+            fontWeight: "bold",
+          },
+        },
+        alignTo: "circle",
+      },
     },
-  ];
-});
-
-const layout = ref({
-  height: 300,
-  width: 300,
-  paper_bgcolor: "rgba(0,0,0,0)",
-  showlegend: false,
-  font: {
-    family: "Inter",
-    weight: 500,
-  },
-  margin: {
-    l: 0,
-    r: 0,
-    b: 0,
-    t: 0,
-    pad: 0,
-    autoexpand: false,
-  },
-  hovermode: false,
-});
+  ],
+}));
 </script>
+
+<style scoped>
+.chart-wrapper {
+  width: 300px;
+  height: 300px; /* Adjust height as needed */
+}
+</style>

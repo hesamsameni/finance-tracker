@@ -28,7 +28,7 @@
       />
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div v-for="board in boards" :key="board.id">
+      <div v-for="(board, index) in boards" :key="board.id">
         <div>
           <div
             class="block px-6 py-8 border not-prose rounded-lg border-gray-200 dark:border-gray-800 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
@@ -40,7 +40,12 @@
                 <div
                   class="inline-flex items-center rounded-full p-1.5 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
                 >
-                  <UIcon name="i-heroicons-home" class="text-green-600" />
+                  <UIcon
+                    :name="`fluent-emoji-high-contrast:keycap-${
+                      index + 1 < 11 ? index + 1 : 0
+                    }`"
+                    class="text-green-600"
+                  />
                 </div>
               </nuxt-link>
               <UPopover>
