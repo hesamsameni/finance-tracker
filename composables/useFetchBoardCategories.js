@@ -18,13 +18,13 @@ export const useFetchBoardCategories = (boardId) => {
       if (fetchError) throw fetchError;
 
       // Ensure each category has required properties with defaults
-      categories.value = (data || []).map(cat => ({
+      categories.value = (data || []).map((cat) => ({
         label: cat.label,
-        icon: cat.icon || 'i-heroicons-question-mark-circle-20-solid', // Default icon
-        color: cat.color || 'gray', // Default color
-        ...cat
+        icon: cat.icon || "i-heroicons-question-mark-circle-20-solid", // Default icon
+        color: cat.color || "gray", // Default color
+        ...cat,
       }));
-      
+
       return categories.value;
     } catch (err) {
       error.value = err;

@@ -4,6 +4,7 @@ export const transactionViewOptions = [
   "Last Month",
   "Last 3 Months",
   "This Year",
+  "All Time",
 ];
 export const categories = [
   {

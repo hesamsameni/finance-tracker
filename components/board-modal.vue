@@ -116,6 +116,7 @@
               <CustomColorPicker
                 @select-color="selectedColor = $event"
                 :selected-color="selectedColor"
+                :used-colors="usedColors"
                 class="mt-2"
               />
             </UFormGroup>
@@ -220,6 +221,12 @@ const selectedIcon = ref("");
 const availableCategories = ref([...categories]);
 const selectedColor = ref("pink");
 
+const usedColors = computed(() => {
+  return availableCategories.value
+    .filter((category) => category.isCustom)
+    .map((category) => category.color);
+});
+
 // Computed
 const headerText = computed(() => {
   return {
@@ -273,6 +280,7 @@ const cancelCustomCategory = () => {
   showCustomCategoryForm.value = false;
   customCategoryName.value = "";
   selectedIcon.value = "";
+  selectedColor.value = "pink"; // Reset to default color
 };
 
 const toggleCategory = (label) => {

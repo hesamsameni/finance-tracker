@@ -9,35 +9,46 @@
 </template>
 
 <script setup>
-import { categories as categoryMetadata } from "~/constants";
-
 const props = defineProps({
   categories: {
     type: Object,
     required: true,
   },
   currency: String,
+  categoryMetadata: {
+    type: Array,
+    required: true,
+  },
 });
-
-
-const colors = {
-  red: "#f44336",
-  green: "#4caf50",
-  purple: "#9c27b0",
-  yellow: "#ffeb3b",
-  amber: "#ffc107",
-  orange: "#ff9800",
-  blue: "#2196f3",
-  lime: "#c6ff00",
-  teal: "#26a69a",
-  pink: "#e91e63",
-};
 
 const filteredCategories = computed(() =>
   Object.entries(props.categories).filter(
     ([key]) => key.toLowerCase() !== "carry over"
   )
 );
+
+const tailwindColors = {
+  red: { 400: "#f87171", 500: "#ef4444" },
+  green: { 400: "#4ade80", 500: "#22c55e" },
+  purple: { 400: "#c084fc", 500: "#a855f7" },
+  yellow: { 400: "#facc15", 500: "#eab308" },
+  amber: { 400: "#fbbf24", 500: "#f59e0b" },
+  orange: { 400: "#fb923c", 500: "#f97316" },
+  blue: { 400: "#60a5fa", 500: "#3b82f6" },
+  lime: { 400: "#a3e635", 500: "#84cc16" },
+  teal: { 400: "#2dd4bf", 500: "#14b8a6" },
+  pink: { 400: "#f472b6", 500: "#ec4899" },
+  gray: { 400: "#9ca3af", 500: "#6b7280" },
+  emerald: { 400: "#34d399", 500: "#10b981" },
+  cyan: { 400: "#22d3ee", 500: "#06b6d4" },
+  sky: { 400: "#38bdf8", 500: "#0ea5e9" },
+  indigo: { 400: "#818cf8", 500: "#6366f1" },
+  violet: { 400: "#a78bfa", 500: "#8b5cf6" },
+  fuchsia: { 400: "#e879f9", 500: "#d946ef" },
+  rose: { 400: "#fb7185", 500: "#f43f5e" },
+  slate: { 400: "#94a3b8", 500: "#64748b" },
+  stone: { 400: "#a8a29e", 500: "#78716c" },
+};
 
 const data = computed(() => {
   return [
@@ -49,13 +60,21 @@ const data = computed(() => {
         return formattedCurrency.value;
       }),
       texttemplate: "<b>%{label}</b><br>%{customdata}",
-
       type: "pie",
       hole: 0.35,
       marker: {
         colors: filteredCategories.value.map(([key]) => {
-          const category = categoryMetadata.find((cat) => cat.label === key);
-          return category ? colors[category.color] : "#cccccc"; // Fallback color
+          const category = props.categoryMetadata.find(
+            (cat) => cat.label === key
+          );
+          if (category && tailwindColors[category.color]) {
+            // Use hue 400 if isCustom is true, else hue 500
+            return tailwindColors[category.color][
+              category.isCustom ? 400 : 500
+            ];
+          }
+          // Fallback to gray hue 500 if category not found or color missing
+          return tailwindColors.gray[500];
         }),
       },
       hoverinfo: "label+value",

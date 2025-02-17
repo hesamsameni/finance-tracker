@@ -16,21 +16,14 @@
   </section>
 
   <section
-    class="flex flex-col-reverse justify-center lg:flex-row lg:justify-between lg:mb-20"
+    id="chart-section"
+    class="flex flex-col-reverse justify-center lg:flex-row lg:justify-between"
   >
-    <div
-      class="flex justify-between lg:flex-col"
-      v-if="boardMembers.length > 1"
-    >
-      <UsersWidget
-        v-for="(user, i) in boardMembers"
-        class="my-2"
-        :key="i"
-        :color="user.color ? user.color : 'green'"
-        :title="user.user_nickname"
-        :userId="user.user_id"
-        :amount="getUserExpenses(user.user_id)"
-        :loading="pending"
+    <div>
+      <CategoryTotals
+        v-if="expenses.length"
+        :expenses="expenses"
+        :categories="fetchedCategories"
         :currency="$route.query.currency"
       />
     </div>
@@ -43,6 +36,23 @@
           v-if="expenses.length"
           :categories="categoriesForChart"
           :currency="$route.query.currency"
+          :categoryMetadata="fetchedCategories"
+        />
+        <p v-else class="text-center text-gray-500">
+          No expenses to display chart.
+        </p>
+      </ClientOnly>
+    </div>
+    <div
+      class="flex justify-center"
+      v-if="Object.keys(categoriesForChart).length == 1"
+    >
+      <ClientOnly>
+        <ExpensesBarChart
+          v-if="expenses.length"
+          :expenses="expenses"
+          :currency="$route.query.currency"
+          :categoryMetadata="fetchedCategories"
         />
         <p v-else class="text-center text-gray-500">
           No expenses to display chart.
@@ -50,6 +60,23 @@
       </ClientOnly>
     </div>
   </section>
+
+  <section>
+    <div class="flex justify-between" v-if="boardMembers.length > 1">
+      <UsersWidget
+        v-for="(user, i) in boardMembers"
+        class="my-2"
+        :key="i"
+        :color="user.color ? user.color : 'green'"
+        :title="user.user_nickname"
+        :userId="user.user_id"
+        :amount="getUserExpenses(user.user_id)"
+        :loading="pending"
+        :currency="$route.query.currency"
+      />
+    </div>
+  </section>
+
   <UTabs :items="tabs" class="w-full">
     <template #expenses>
       <section class="flex justify-between my-10">
@@ -242,10 +269,14 @@ const {
   categoriesForChart,
 } = useBoardData(boardId, selectedView);
 
-await refreshExpenses(boardId);
-await getUsers(boardId);
-await refreshDiscounts(boardId);
-await refreshNotes(boardId);
+const initializeData = async () => {
+  await refreshExpenses(boardId);
+  await getUsers(boardId);
+  await refreshDiscounts(boardId);
+  await refreshNotes(boardId);
+};
+
+initializeData();
 
 const openNoteModal = (note = null) => {
   selectedNote.value = note;

@@ -45,6 +45,11 @@ export const useSelectedTimePeriod = (period) => {
           from: startOfMonth(threeMonthsAgo),
           to: endOfMonth(currentDate),
         };
+      case "All Time":
+        return {
+          from: startOfDay(new Date(0)), // Unix epoch start (1970-01-01)
+          to: endOfDay(currentDate),
+        };
       default:
         return {
           from: startOfDay(currentDate),
