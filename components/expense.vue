@@ -13,58 +13,65 @@
         :categories="categories"
         @saved="emit('edited')"
       />
-      <div
-        class="hidden lg:grid lg:grid-cols-5 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
-      >
-        <div
-          class="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:space-x-4 lg:col-span-4"
-        >
-          <div class="flex items-center space-x-5 w-40 mb-5 lg:mb-0">
+
+      <!-- Desktop Version -->
+      <UCard class="hidden lg:block mb-5" :ui="{ body: { padding: 'p-4' } }">
+        <div class="grid grid-cols-6 items-center gap-4">
+          <!-- Icon and Category Section -->
+          <div class="col-span-2 flex items-center space-x-4">
             <div
-              class="inline-flex items-center rounded-full p-1.5 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
+              class="inline-flex items-center rounded-full p-3 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
             >
               <UIcon
                 :name="categoryDetails.icon"
                 :class="`text-${categoryDetails.color}-400 w-7 h-7`"
               />
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <div
                 class="font-bold truncate max-w-[100px] overflow-hidden whitespace-nowrap"
                 :title="formatTitle(expense.title)"
               >
                 {{ formatTitle(expense.title) }}
               </div>
+              <div :class="`text-xs text-${categoryDetails.color}-400`">
+                {{ expense.category }}
+              </div>
             </div>
           </div>
-          <div class="mb-0 text-left">
-            <div>{{ formatTitle(paidByNickname) }}</div>
-          </div>
-          <div class="lg:flex lg:flex-col lg:items-center">
-            {{ formattedDate }}
+
+          <div class="col-span-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="mr-20 w-20 text-center">
+                {{ formatTitle(paidByNickname) }}
+              </div>
+
+              <div class="text-center">{{ formattedDate }}</div>
+            </div>
+
+            <!-- Dropdown -->
+            <div class="flex items-center gap-6">
+              <div class="font-medium">{{ formattedCurrency }}</div>
+
+              <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+                <UButton
+                  color="white"
+                  variant="ghost"
+                  trailing-icon="i-heroicons-ellipsis-horizontal"
+                  :loading="isLoading"
+                />
+              </UDropdown>
+            </div>
           </div>
         </div>
-        <div class="flex items-center justify-end">
-          <div class="text-center">{{ formattedCurrency }}</div>
-          <div>
-            <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
-              <UButton
-                color="white"
-                variant="ghost"
-                trailing-icon="i-heroicons-ellipsis-horizontal"
-                :loading="isLoading"
-              />
-            </UDropdown>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col lg:hidden">
+      </UCard>
+
+      <!-- Mobile Version -->
+      <div class="lg:hidden">
         <UCard class="mb-5">
           <template #header>
             <div class="flex items-center justify-between">
-              <div class="text-right mb-2">
-                {{ formattedDate }}
-              </div>
+              <div>{{ formattedDate }}</div>
               <div>
                 <UDropdown
                   :items="items"
@@ -83,7 +90,7 @@
           <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
               <div
-                class="inline-flex items-center rounded-full p-4 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
+                class="inline-flex items-center rounded-full p-3 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
               >
                 <UIcon
                   :name="categoryDetails.icon"
@@ -102,7 +109,7 @@
                 </div>
               </div>
             </div>
-            <div class="flex flex-col justify-end space-x-4">
+            <div class="flex flex-col items-end">
               <div class="text-right mb-2">{{ formattedCurrency }}</div>
               <div class="text-right">{{ formatTitle(paidByNickname) }}</div>
             </div>
@@ -133,7 +140,7 @@ const supabase = useSupabaseClient();
 
 const formattedDate = computed(() => {
   // Parse and format the date
-  return format(new Date(props.expense.purchase_date), "do MMMM yyyy");
+  return format(new Date(props.expense.purchase_date), "do MMM yyyy");
 });
 
 const paidByNickname = computed(() => {

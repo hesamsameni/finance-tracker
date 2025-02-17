@@ -1,9 +1,8 @@
-<!-- components/ColorPicker.vue -->
 <template>
   <div class="color-picker">
-    <div class="flex flex-wrap gap-10 justify-center">
+    <div class="grid grid-cols-3 lg:grid-cols-6 gap-10 justify-items-center">
       <button
-        v-for="color in colors"
+        v-for="color in filteredColors"
         :key="color.name"
         class="w-8 h-8 rounded-full flex items-center justify-center transition-all"
         :class="[
@@ -27,30 +26,51 @@
 <script setup>
 const props = defineProps({
   selectedColor: String,
+  usedColors: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(["select-color"]);
 
 const colors = [
-  { name: "red", bg: "bg-red-500" },
-  { name: "orange", bg: "bg-orange-500" },
-  { name: "amber", bg: "bg-amber-500" },
-  { name: "yellow", bg: "bg-yellow-500" },
-  { name: "lime", bg: "bg-lime-500" },
-  { name: "green", bg: "bg-green-500" },
-  { name: "emerald", bg: "bg-emerald-500" },
-  { name: "teal", bg: "bg-teal-500" },
-  { name: "cyan", bg: "bg-cyan-500" },
-  { name: "sky", bg: "bg-sky-500" },
-  { name: "blue", bg: "bg-blue-500" },
-  { name: "indigo", bg: "bg-indigo-500" },
-  { name: "violet", bg: "bg-violet-500" },
-  { name: "purple", bg: "bg-purple-500" },
-  { name: "fuchsia", bg: "bg-fuchsia-500" },
-  { name: "pink", bg: "bg-pink-500" },
-  { name: "rose", bg: "bg-rose-500" },
-  { name: "slate", bg: "bg-slate-500" },
+  { name: "red", bg: "bg-red-400" },
+  { name: "orange", bg: "bg-orange-400" },
+  { name: "amber", bg: "bg-amber-400" },
+  { name: "yellow", bg: "bg-yellow-400" },
+  { name: "lime", bg: "bg-lime-400" },
+  { name: "green", bg: "bg-green-400" },
+  { name: "emerald", bg: "bg-emerald-400" },
+  { name: "teal", bg: "bg-teal-400" },
+  { name: "cyan", bg: "bg-cyan-400" },
+  { name: "sky", bg: "bg-sky-400" },
+  { name: "blue", bg: "bg-blue-400" },
+  { name: "indigo", bg: "bg-indigo-400" },
+  { name: "violet", bg: "bg-violet-400" },
+  { name: "purple", bg: "bg-purple-400" },
+  { name: "fuchsia", bg: "bg-fuchsia-400" },
+  { name: "pink", bg: "bg-pink-400" },
+  { name: "rose", bg: "bg-rose-400" },
+  { name: "slate", bg: "bg-slate-400" },
 ];
+
+const filteredColors = ref([]);
+
+const updateFilteredColors = () => {
+  filteredColors.value = colors.filter((color) => {
+    // Allow the color if it's not used or if it's the currently selected one.
+    return (
+      !props.usedColors.includes(color.name) ||
+      props.selectedColor === color.name
+    );
+  });
+};
+
+watch(() => [props.usedColors, props.selectedColor], updateFilteredColors, {
+  deep: true,
+  immediate: true,
+});
 
 const selectColor = (color) => {
   emit("select-color", color);
