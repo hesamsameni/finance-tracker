@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/supabase', 'nuxt-plotly', 'nuxt-gtag',  'nuxt-echarts'],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase',  'nuxt-gtag',  'nuxt-echarts'],
   gtag: {
     id: process.env.NUXT_PUBLIC_GA_ID
   },
@@ -22,11 +22,6 @@ export default defineNuxtConfig({
     supaBaseKey: process.env.SUPABASE_KEY,
     public: {
       baseUrl: process.env.BASE_URL ?? "http://localhost:3000",
-    },
-  },
-  vite: {
-    optimizeDeps: {
-      include: ["plotly.js-dist-min"],
     },
   },
   echarts: {
