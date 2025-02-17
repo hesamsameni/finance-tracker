@@ -34,13 +34,13 @@
       </UCard>
 
       <!-- Total Spent Card -->
-      <UCard>
+      <UCard class="border-2 border-primary-300 dark:border-primary-700">
         <div class="flex items-center space-x-4">
           <div
-            class="inline-flex items-center rounded-full p-2 bg-primary-100 dark:bg-primary-800 ring-1 ring-primary-300 dark:ring-primary-700"
+            class="inline-flex items-center rounded-full p-2 ring-1 ring-primary-300 dark:ring-primary-700"
           >
             <UIcon
-              name="i-heroicons-currency-euro"
+              name="i-heroicons-currency-dollar"
               class="text-primary-600 dark:text-primary-400 w-5 h-5"
             />
           </div>

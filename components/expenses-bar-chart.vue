@@ -1,19 +1,14 @@
 <template>
-  <client-only>
-    <nuxt-plotly
-      :data="barData"
-      :layout="barLayout"
-      :display-mode-bar="true"
-    ></nuxt-plotly>
-  </client-only>
+  <div class="chart-wrapper">
+    <v-chart :option="chartOptions" autoresize />
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { computed } from "vue";
 import { groupBy, sumBy } from "lodash";
-import { useCurrency } from "~/composables/useCurrency"; // Import the useCurrency composable
 
-// Define props
+// Define the props expected by the component
 const props = defineProps({
   expenses: {
     type: Array,
@@ -21,15 +16,14 @@ const props = defineProps({
   },
   currency: {
     type: String,
-    default: "USD",
+    default: "$",
   },
   categoryMetadata: {
     type: Array,
-    required: true,
+    default: () => [],
   },
 });
 
-// Tailwind color configuration
 const tailwindColors = {
   red: "#ef4444",
   green: "#22c55e",
@@ -53,93 +47,94 @@ const tailwindColors = {
   stone: "#78716c",
 };
 
-// Helper function to format date to 'MMM YY' format
-const formatDateToMonth = (dateString) => {
-  if (!dateString) return ""; // Handle null or undefined dates
-  const date = new Date(dateString);
-  const options = { year: "2-digit", month: "short" };
-  return date.toLocaleDateString("en-US", options);
-};
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return (
+    d.toLocaleString("default", { month: "short" }) +
+    " " +
+    d.getFullYear().toString().slice(-2)
+  );
+}
 
-// Aggregate expenses by month
 const aggregatedData = computed(() => {
-  if (!props.expenses || props.expenses.length === 0) return [];
-
-  // Group expenses by purchase_date month
   const grouped = groupBy(props.expenses, (expense) =>
-    formatDateToMonth(expense.purchase_date)
+    formatDate(expense.purchase_date)
   );
 
-  // Calculate total amount for each month
   return Object.entries(grouped).map(([month, expenses]) => ({
     month,
     totalAmount: sumBy(expenses, "amount"),
   }));
 });
 
-// Prepare Plotly bar chart data
-const barData = ref([]);
-const computedColor = computed(() => {
-  return props.categoryMetadata.length > 0
-    ? tailwindColors[props.categoryMetadata[0].color] || "#0ea5e9" // Default to sky if not found
-    : "#0ea5e9";
-});
+const chartOptions = computed(() => ({
+  tooltip: {
+    trigger: "axis",
+    formatter: (params) => {
+      const dataPoint = params[0];
+      const { formattedCurrency } = useCurrency(
+        dataPoint.value,
+        props.currency
+      );
 
-watch(
-  aggregatedData,
-  (newData, oldData) => {
-    if (JSON.stringify(newData) !== JSON.stringify(oldData)) {
-      const months = newData.map((data) => data.month);
-      const values = newData.map((data) => data.totalAmount);
-
-      barData.value = [
-        {
-          x: months,
-          y: values,
-          type: "bar",
-          marker: {
-            color: computedColor.value,
-          },
-          text: values.map(
-            (value) =>
-              useCurrency(value, props.currency).formattedCurrency.value
-          ),
-          textposition: "auto",
-          hoverinfo: "none",
+      return `${dataPoint.name}: ${formattedCurrency.value}`;
+    },
+  },
+  xAxis: {
+    type: "category",
+    data: aggregatedData.value.map((data) => data.month),
+    axisTick: { alignWithLabel: true },
+    inverse: true,
+    axisLabel: {
+      rotate: 90, // Rotate labels for better readability
+    },
+  },
+  yAxis: {
+    type: "value",
+    show: false, // Hide the vertical axis
+    splitLine: { show: false }, // Remove horizontal grid lines
+  },
+  series: [
+    {
+      type: "bar",
+      data: aggregatedData.value.map((data) => data.totalAmount),
+      label: {
+        show: true,
+        rotate: 90,
+        position: "inside",
+        formatter: (params) => {
+          const { formattedCurrency } = useCurrency(
+            params.value,
+            props.currency
+          );
+          return formattedCurrency.value;
         },
-      ];
-    }
-  },
-  { immediate: true }
-);
-
-// Define Plotly layout
-const barLayout = ref({
-  height: 300,
-  width: 500,
-  showlegend: false,
-  paper_bgcolor: "rgba(0,0,0,0)",
-  plot_bgcolor: "rgba(0,0,0,0)",
-  font: {
-    family: "Inter",
-    weight: 500,
-  },
-  margin: {
-    l: 0,
-    r: 0,
-    b: 80,
-    t: 0,
-    pad: 0,
-  },
-  barcornerradius: 15,
-  xaxis: {
-    tickangle: 90,
-    tickmode: "array",
-    tickvals: aggregatedData.value.map((data) => data.month),
-    ticktext: aggregatedData.value.map((data) => `  ${data.month}`), // Add a space before the month
-  },
-  yaxis: {
-    showgrid: false, // Remove horizontal grid lines
-  },
-});
+      },
+      itemStyle: {
+        color: tailwindColors[props.categoryMetadata[0]?.color] || "#3182ce",
+        borderRadius: [10, 10, 0, 0],
+        borderColor: "transparent",
+      },
+    },
+  ],
+}));
 </script>
+
+<style scoped>
+.chart-wrapper {
+  width: 100%;
+  height: 330px; /* Adjust height as needed */
+}
+
+@media (min-width: 640px) {
+  .chart-wrapper {
+    height: 400px; /* Adjust height for larger screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .chart-wrapper {
+    height: 500px; /* Adjust height for even larger screens */
+  }
+}
+</style>

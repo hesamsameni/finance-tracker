@@ -16,8 +16,8 @@
   </section>
 
   <section
-    id="chart-section"
     class="flex flex-col-reverse justify-center lg:flex-row lg:justify-between"
+    v-if="Object.keys(categoriesForChart).length > 1"
   >
     <div>
       <CategoryTotals
@@ -43,8 +43,11 @@
         </p>
       </ClientOnly>
     </div>
+  </section>
+
+  <section>
     <div
-      class="flex justify-center"
+      class="flex justify-center -mt-10 -z-10 relative"
       v-if="Object.keys(categoriesForChart).length == 1"
     >
       <ClientOnly>
@@ -58,6 +61,14 @@
           No expenses to display chart.
         </p>
       </ClientOnly>
+    </div>
+    <div v-if="Object.keys(categoriesForChart).length == 1">
+      <CategoryTotals
+        v-if="expenses.length"
+        :expenses="expenses"
+        :categories="fetchedCategories"
+        :currency="$route.query.currency"
+      />
     </div>
   </section>
 
@@ -274,6 +285,9 @@ const initializeData = async () => {
   await getUsers(boardId);
   await refreshDiscounts(boardId);
   await refreshNotes(boardId);
+  if (Object.keys(categoriesForChart.value).length === 1) {
+    selectedView.value = transactionViewOptions[5];
+  }
 };
 
 initializeData();
