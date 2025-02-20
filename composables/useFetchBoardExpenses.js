@@ -45,6 +45,23 @@ export const useFetchBoardExpenses = (period, boardId) => {
     }
   };
 
+  const fetchAllExpenses = async (boardId) => {
+    try {
+      const { data } = await useAsyncData(async () => {
+        const { data, error } = await supabase
+          .from("board_expenses")
+          .select()
+          .eq("board_id", boardId)
+          .order("purchase_date", { ascending: false });
+        return error ? [] : data;
+      });
+      return data.value;
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+      return;
+    }
+  };
+
   const refreshExpenses = async (boardId) => {
     expenses.value = await fetchExpenses(boardId);
   };
@@ -78,6 +95,7 @@ export const useFetchBoardExpenses = (period, boardId) => {
       all: boardMembers,
     },
     refreshExpenses,
+    fetchAllExpenses,
     pending,
     getUsers: loadBoardMembers,
   };

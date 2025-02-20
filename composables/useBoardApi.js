@@ -62,6 +62,15 @@ export function useBoardApi() {
     if (error) throw error;
   };
 
+  const updateFavoriteBoard = async (boardId, isFavorite) => {
+    const { error } = await supabase
+      .from("boards")
+      .update({ is_favorite: isFavorite })
+      .eq("id", boardId);
+
+    if (error) throw error;
+  };
+
   return {
     createBoard,
     updateBoard,
@@ -69,5 +78,6 @@ export function useBoardApi() {
     addCategoriesToBoard,
     deleteBoard,
     deleteBoardCategories,
+    updateFavoriteBoard,
   };
 }

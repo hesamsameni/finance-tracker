@@ -106,12 +106,25 @@ const deleteBoardModalIsOpen = ref(false);
 const selectedBoard = ref(null);
 const { toastError, toastSuccess } = useAppToast();
 const router = useRouter();
+const { updateFavoriteBoard } = useBoardApi();
 
 if (!user.value) {
   router.push({
     path: "/login",
   });
 }
+
+const toggleFavoriteBoard = async (board) => {
+  try {
+    await updateFavoriteBoard(board.id, !board.is_favorite);
+    await refresh();
+  } catch (error) {
+    toastError({
+      title: "Failed to update favorite status",
+      description: error.message,
+    });
+  }
+};
 
 const getDropdownItems = (board) => {
   return [
@@ -124,6 +137,11 @@ const getDropdownItems = (board) => {
       label: "Edit",
       icon: "i-heroicons-pencil-20-solid",
       click: () => openEditModal(board),
+    },
+    {
+      label: board.is_favorite ? "Remove favorite" : "Set as favorite",
+      icon: "i-heroicons-star-20-solid",
+      click: () => toggleFavoriteBoard(board),
     },
     {
       label: "Delete",

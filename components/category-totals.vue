@@ -1,6 +1,6 @@
 <!-- components/CategoryTotals.vue -->
 <template>
-  <section class="mb-10">
+  <section class="mb-4">
     <div
       :class="
         Object.keys(categoryTotals).length == 1
@@ -34,7 +34,7 @@
       </UCard>
 
       <!-- Total Spent Card -->
-      <UCard class="border-2 border-primary-300 dark:border-primary-700">
+      <UCard>
         <div class="flex items-center space-x-4">
           <div
             class="inline-flex items-center rounded-full p-2 ring-1 ring-primary-300 dark:ring-primary-700"

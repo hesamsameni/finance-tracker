@@ -27,6 +27,6 @@ export default defineNuxtConfig({
   echarts: {
     renderer: 'svg',
     charts: ['BarChart', 'PieChart'],
-    components: ['DatasetComponent', 'GridComponent', 'TooltipComponent'],
+    components: ['DatasetComponent', 'GridComponent', 'TooltipComponent', 'LegendComponent'],
   },
 })
