@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-20">
+  <div class="my-4">
     <div class="font-bold" :class="`text-${color}-600 dark:text-${color}-400`">
       {{ title }}
     </div>

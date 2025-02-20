@@ -24,10 +24,11 @@ export const useFetchBoards = () => {
       const { data, error } = await supabase
         .from("boards")
         .select(
-          "id, title, currency, invite_token, auto_carry_over, categories(id, label, icon, color)"
+          "id, title, currency, invite_token, auto_carry_over, is_favorite, categories(id, label, icon, color)"
         )
         .eq("is_visible", true)
-        .in("id", boardIds);
+        .in("id", boardIds)
+        .order("is_favorite", { ascending: false });
 
       if (error) throw error;
       return data;

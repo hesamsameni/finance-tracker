@@ -1,6 +1,5 @@
 <template>
-  <!-- Responsive container: adjusts width and maintains a 2:1 aspect ratio -->
-  <div class="chart-wrapper mb-10">
+  <div class="chart-wrapper mb-10 lg:mb-0">
     <v-chart :option="chartOptions" autoresize />
   </div>
 </template>

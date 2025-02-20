@@ -4,6 +4,7 @@ export function useBoardData(boardId, selectedView) {
   const {
     pending,
     refreshExpenses,
+    fetchAllExpenses,
     getUsers,
     expenses: { all: expenses, getUserExpenses },
     boardMembers: { all: boardMembers },
@@ -33,6 +34,7 @@ export function useBoardData(boardId, selectedView) {
   return {
     pending,
     refreshExpenses,
+    fetchAllExpenses,
     getUsers,
     expenses,
     getUserExpenses,
