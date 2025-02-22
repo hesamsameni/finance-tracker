@@ -50,7 +50,7 @@
       />
     </div>
   </header>
-  <USlideover v-model="isOpen" prevent-close side="left">
+  <USlideover v-model="isOpen" prevent-close side="right">
     <UCard>
       <template #header>
         <div class="flex items-center justify-between">
