@@ -1,32 +1,53 @@
-<script setup lang="ts">
-const links = [
-  [
+<script setup>
+const { boards, refresh } = useFetchBoards();
+const loading = ref(true);
+
+const initBoards = async () => {
+  await refresh();
+  loading.value = false;
+};
+await initBoards();
+
+const links = computed(() => {
+  if (!boards.value) return [];
+
+  const boardLinks = boards.value.flatMap((board) => [
+    {
+      label: board.title, // This represents the Expenses view
+      to: `/boards/${board.id}/expenses?title=${board.title}&currency=${board.currency}`,
+    },
+    {
+      label: "↳ Notes", // Visual indicator of sub-item
+      to: `/boards/${board.id}/notes?title=${board.title}&currency=${board.currency}`,
+    },
+    {
+      label: "↳ Discounts", // Visual indicator of sub-item
+      to: `/boards/${board.id}/discounts?title=${board.title}&currency=${board.currency}`,
+    },
+  ]);
+
+  return [
     {
       label: "Boards",
       icon: "i-heroicons-home",
       to: "/",
     },
-  ],
-  [
-    {
-      label: "Gen AI",
-      icon: "i-heroicons-user",
-      to: "/genai",
-    },
-    {
-      label: "Github",
-      icon: "i-heroicons-code-bracket-square",
-      to: "https://github.com/hesamsameni/finance-tracker",
-    },
-    {
-      label: "Visit me",
-      icon: "i-heroicons-user",
-      to: "http://hesamsameni.com",
-    },
-  ],
-];
+    ...boardLinks,
+  ];
+});
 </script>
 
 <template>
-  <UVerticalNavigation :links="links" />
+  <div v-if="loading" class="p-4">Loading boards...</div>
+  <UVerticalNavigation v-else :links="links" />
 </template>
+
+<style scoped>
+/* Optional: Custom styling for sub-items */
+:deep(.vertical-navigation-link) {
+  padding-left: 1rem; /* Base padding for all items */
+}
+
+/* Unfortunately, we can't target sub-items directly with scoped styles here */
+/* The ↳ prefix in the label will handle the visual hierarchy */
+</style>

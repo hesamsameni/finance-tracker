@@ -8,11 +8,16 @@ import {
   endOfMonth,
   subMonths,
 } from "date-fns";
+import { computed } from "vue";
 
-export const useSelectedTimePeriod = (period) => {
+export function useSelectedTimePeriod(selectedView) {
   const dates = computed(() => {
+    if (!selectedView.value) {
+      return { start: null, end: null };
+    }
+
     const currentDate = new Date();
-    switch (period.value) {
+    switch (selectedView.value) {
       case "This Year":
         return {
           from: startOfYear(currentDate),
@@ -59,4 +64,4 @@ export const useSelectedTimePeriod = (period) => {
   });
 
   return { dates };
-};
+}

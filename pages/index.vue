@@ -35,7 +35,7 @@
           >
             <div class="flex justify-between items-center">
               <nuxt-link
-                :to="`/boards/${board.id}?title=${board.title}&currency=${board.currency}`"
+                :to="`/boards/${board.id}/expenses?title=${board.title}&currency=${board.currency}`"
               >
                 <div
                   class="inline-flex items-center rounded-full p-1.5 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
@@ -72,7 +72,7 @@
             </div>
             <div class="mt-4">
               <nuxt-link
-                :to="`/boards/${board.id}?title=${board.title}&currency=${board.currency}`"
+                :to="`/boards/${board.id}/expenses?title=${board.title}&currency=${board.currency}`"
               >
                 <div
                   class="truncate max-w-[200px] overflow-hidden whitespace-nowrap font-bold text-gray-900 dark:text-white text-[15px] mb-1"

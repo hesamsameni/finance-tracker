@@ -4,7 +4,9 @@
       {{ title }}
     </div>
 
-    <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
+    <div
+      class="text-sm lg:text-2xl font-semibold text-black dark:text-white mb-2"
+    >
       <USkeleton class="h-8 w-full" v-if="loading" />
       <div v-else>{{ formattedCurrency }}</div>
     </div>

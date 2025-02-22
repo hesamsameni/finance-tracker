@@ -68,10 +68,16 @@
 
       <!-- Mobile Version -->
       <div class="lg:hidden">
-        <UCard class="mb-5">
+        <UCard
+          class="mb-5"
+          :ui="{
+            header: { padding: 'py-1 px-4' },
+            body: { padding: 'py-4 px-4' },
+          }"
+        >
           <template #header>
             <div class="flex items-center justify-between">
-              <div>{{ formattedDate }}</div>
+              <div class="text-xs">{{ formattedDate }}</div>
               <div>
                 <UDropdown
                   :items="items"
@@ -90,16 +96,16 @@
           <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
               <div
-                class="inline-flex items-center rounded-full p-3 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
+                class="inline-flex items-center rounded-full p-1 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
               >
                 <UIcon
                   :name="categoryDetails.icon"
-                  :class="`text-${categoryDetails.color}-400 w-7 h-7`"
+                  :class="`text-${categoryDetails.color}-400 w-6 h-6`"
                 />
               </div>
               <div>
                 <div
-                  class="font-bold truncate max-w-[100px] overflow-hidden whitespace-nowrap"
+                  class="font-bold text-xs truncate max-w-[200px] overflow-hidden whitespace-nowrap mb-2"
                   :title="formatTitle(expense.title)"
                 >
                   {{ formatTitle(expense.title) }}
@@ -110,8 +116,14 @@
               </div>
             </div>
             <div class="flex flex-col items-end">
-              <div class="text-right mb-2">{{ formattedCurrency }}</div>
-              <div class="text-right">{{ formatTitle(paidByNickname) }}</div>
+              <div
+                class="text-right text-xs font-semibold text-primary-500 mb-2"
+              >
+                {{ formattedCurrency }}
+              </div>
+              <div class="text-right text-xs">
+                {{ formatTitle(paidByNickname) }}
+              </div>
             </div>
           </div>
         </UCard>
