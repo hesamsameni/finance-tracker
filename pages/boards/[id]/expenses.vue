@@ -1,4 +1,39 @@
 <template>
+  <section class="flex justify-end items-center my-10 gap-2">
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/expenses'),
+          'text-gray-500': !$route.path.includes('/expenses'),
+        }"
+      >
+        Expenses
+      </nuxt-link>
+    </div>
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/notes'),
+          'text-gray-500': !$route.path.includes('/notes'),
+        }"
+      >
+        Notes
+      </nuxt-link>
+    </div>
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/discounts'),
+          'text-gray-500': !$route.path.includes('/discounts'),
+        }"
+      >
+        Discounts
+      </nuxt-link>
+    </div>
+  </section>
   <section class="flex items-center justify-between mb-10">
     <h1 class="text-lg lg:text-3xl font-extrabold">
       {{ $route.query.title ? $route.query.title : boardId }}
@@ -49,11 +84,8 @@
       </div>
     </section>
 
-    <section>
-      <div
-        class="flex justify-center -mt-10 -z-10 relative"
-        v-if="Object.keys(categoriesForChart).length == 1"
-      >
+    <section v-if="singleCategory">
+      <div class="flex justify-center -mt-10 -z-10 relative">
         <ClientOnly>
           <ExpensesBarChart
             v-if="expenses.length"
@@ -66,7 +98,7 @@
           </p>
         </ClientOnly>
       </div>
-      <div v-if="Object.keys(categoriesForChart).length == 1">
+      <div>
         <CategoryTotals
           v-if="expenses.length"
           :expenses="expenses"
@@ -83,7 +115,12 @@
   </section>
 
   <section v-if="!pending">
-    <div class="flex justify-between" v-if="boardMembers.length > 1">
+    <div
+      class="flex justify-between"
+      v-if="
+        boardMembers.length > 1 && Object.keys(categoriesForChart).length > 1
+      "
+    >
       <UsersWidget
         v-for="(user, i) in boardMembers"
         class="my-2"
@@ -147,25 +184,6 @@
     <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
   </section>
 
-  <section class="flex justify-between items-center my-10">
-    <div>
-      <nuxt-link
-        :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
-        class="text-primary-500"
-      >
-        View Notes
-      </nuxt-link>
-    </div>
-    <div>
-      <nuxt-link
-        :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
-        class="text-primary-500"
-      >
-        View Discounts
-      </nuxt-link>
-    </div>
-  </section>
-
   <ClientOnly>
     <ExpensesComparisonModal
       v-model="compareExpensesModalIsOpen"
@@ -201,10 +219,19 @@ const {
   categoriesForChart,
 } = useBoardData(boardId, selectedView);
 
+const singleCategory = computed(() => {
+  return (
+    fetchedCategories.value.filter(
+      (category) => category.label !== "Carry Over"
+    ).length === 1
+  );
+});
+
 const initializeData = async () => {
   await refreshExpenses(boardId);
   await getUsers(boardId);
-  if (Object.keys(categoriesForChart.value).length === 1) {
+
+  if (singleCategory.value) {
     selectedView.value = transactionViewOptions[5];
   }
 };

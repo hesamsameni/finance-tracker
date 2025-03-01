@@ -19,19 +19,6 @@
         <UForm ref="form" @submit="saveFile">
           <UFormGroup :required="true" name="receipt" class="mb-5">
             <div class="flex flex-col gap-4">
-              <!-- Camera Capture Section -->
-              <div class="space-y-2">
-                <UButton
-                  type="button"
-                  icon="i-heroicons-camera"
-                  @click="startCamera"
-                  :disabled="uploading"
-                  label="Take Photo Of Your Discount"
-                  block
-                />
-              </div>
-              <p class="text-sm text-gray-500">or upload from your device</p>
-              <!-- Existing File Input -->
               <UInput
                 type="file"
                 ref="fileInput"
@@ -58,43 +45,6 @@
             </UButton>
           </div>
         </UForm>
-
-        <!-- Camera Preview Modal -->
-        <UModal v-model="showCameraPreview">
-          <UCard>
-            <template #header>
-              Take Photo
-              <UButton
-                icon="i-heroicons-x-mark"
-                color="gray"
-                variant="ghost"
-                class="float-right"
-                @click="stopCamera"
-              />
-            </template>
-
-            <div
-              class="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
-            >
-              <video
-                ref="videoElement"
-                class="w-full h-full object-cover"
-                autoplay
-              ></video>
-              <div class="absolute bottom-4 left-0 right-0 flex justify-center">
-                <UButton
-                  icon="i-heroicons-camera"
-                  color="primary"
-                  size="xl"
-                  @click="capturePhoto"
-                  :loading="capturing"
-                />
-              </div>
-            </div>
-
-            <canvas ref="canvasElement" class="hidden"></canvas>
-          </UCard>
-        </UModal>
       </div>
       <div v-else>
         <UForm ref="reviewForm" @submit="saveToDatabase">
@@ -154,11 +104,6 @@ const uploading = ref(false);
 const fileInput = ref();
 const form = ref();
 const tempFileName = ref();
-const videoElement = ref(null);
-const canvasElement = ref(null);
-const showCameraPreview = ref(false);
-const capturing = ref(false);
-const mediaStream = ref(null);
 
 const processingStep = ref("upload"); // 'upload' or 'review'
 const formData = ref({
@@ -351,65 +296,4 @@ const parseAIResponse = (response) => {
     throw new Error("Failed to parse AI response: " + error.message);
   }
 };
-
-// Camera related methods:
-const startCamera = async () => {
-  try {
-    mediaStream.value = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" }, // Use rear camera on mobile
-    });
-    showCameraPreview.value = true;
-    await nextTick();
-    videoElement.value.srcObject = mediaStream.value;
-  } catch (error) {
-    toastError({
-      title: "Camera access required",
-      description: "Please allow camera access to take photos",
-    });
-  }
-};
-
-const stopCamera = () => {
-  if (mediaStream.value) {
-    mediaStream.value.getTracks().forEach((track) => track.stop());
-    mediaStream.value = null;
-  }
-  showCameraPreview.value = false;
-};
-
-const capturePhoto = () => {
-  capturing.value = true;
-  const canvas = canvasElement.value;
-  const video = videoElement.value;
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext("2d").drawImage(video, 0, 0);
-
-  canvas.toBlob(
-    async (blob) => {
-      // Create a File object from the Blob
-      const file = new File([blob], `photo_${Date.now()}.jpg`, {
-        type: "image/jpeg",
-        lastModified: Date.now(),
-      });
-
-      // Set the file input value
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.value.input.files = dataTransfer.files;
-
-      // Trigger processing
-      stopCamera();
-      capturing.value = false;
-      await saveFile();
-    },
-    "image/jpeg",
-    0.9
-  );
-};
-
-onBeforeUnmount(() => {
-  stopCamera();
-});
 </script>
