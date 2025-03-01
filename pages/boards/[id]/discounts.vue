@@ -1,5 +1,43 @@
 <template>
-  <section class="flex justify-end items-center mb-10">
+  <section class="flex justify-end items-center my-10 gap-2">
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/expenses'),
+          'text-gray-500': !$route.path.includes('/expenses'),
+        }"
+      >
+        Expenses
+      </nuxt-link>
+    </div>
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/notes'),
+          'text-gray-500': !$route.path.includes('/notes'),
+        }"
+      >
+        Notes
+      </nuxt-link>
+    </div>
+    <div>
+      <nuxt-link
+        :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
+        :class="{
+          'text-primary-500': $route.path.includes('/discounts'),
+          'text-gray-500': !$route.path.includes('/discounts'),
+        }"
+      >
+        Discounts
+      </nuxt-link>
+    </div>
+  </section>
+  <section class="flex justify-between items-center mb-10">
+    <div>
+      <h2 class="text-lg lg:text-2xl font-extrabold">Discounts</h2>
+    </div>
     <div>
       <DiscountModal
         v-model="discountModalIsOpen"
