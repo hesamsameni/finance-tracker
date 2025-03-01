@@ -121,14 +121,6 @@ const links = computed(() => {
       label: board.title, // This represents the Expenses view
       to: `/boards/${board.id}/expenses?title=${board.title}&currency=${board.currency}`,
     },
-    {
-      label: "↳ Notes", // Visual indicator of sub-item
-      to: `/boards/${board.id}/notes?title=${board.title}&currency=${board.currency}`,
-    },
-    {
-      label: "↳ Discounts", // Visual indicator of sub-item
-      to: `/boards/${board.id}/discounts?title=${board.title}&currency=${board.currency}`,
-    },
   ]);
 
   return [
