@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     }
   },
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: ['@nuxt/ui', '@nuxtjs/supabase',  'nuxt-gtag',  'nuxt-echarts'],
   gtag: {
     id: process.env.NUXT_PUBLIC_GA_ID

@@ -1,53 +1,78 @@
 <template>
-  <section class="flex justify-end items-center my-10 gap-2">
-    <div>
-      <nuxt-link
+  <div
+    class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10 lg:hidden"
+  >
+    <nav class="flex justify-around py-3">
+      <NuxtLink
         :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/expenses'),
-          'text-gray-500': !$route.path.includes('/expenses'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/expenses') }"
       >
-        Expenses
-      </nuxt-link>
-    </div>
-    <div>
-      <nuxt-link
+        <UIcon name="i-heroicons-banknotes" class="text-2xl" />
+        <span class="text-xs">Expenses</span>
+      </NuxtLink>
+      <NuxtLink
         :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/notes'),
-          'text-gray-500': !$route.path.includes('/notes'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/notes') }"
       >
-        Notes
-      </nuxt-link>
-    </div>
-    <div>
-      <nuxt-link
+        <UIcon name="i-heroicons-pencil-square" class="text-2xl" />
+        <span class="text-xs">Notes</span>
+      </NuxtLink>
+      <NuxtLink
         :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/discounts'),
-          'text-gray-500': !$route.path.includes('/discounts'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/discounts') }"
       >
-        Discounts
-      </nuxt-link>
+        <UIcon name="i-heroicons-receipt-percent" class="text-2xl" />
+        <span class="text-xs">Discounts</span>
+      </NuxtLink>
+    </nav>
+  </div>
+  <section class="hidden lg:flex justify-between items-center mb-4">
+    <div class="flex justify-start items-center gap-2">
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/expenses'),
+            'text-gray-500': !$route.path.includes('/expenses'),
+          }"
+        >
+          Expenses
+        </nuxt-link>
+      </div>
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/notes'),
+            'text-gray-500': !$route.path.includes('/notes'),
+          }"
+        >
+          Notes
+        </nuxt-link>
+      </div>
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/discounts'),
+            'text-gray-500': !$route.path.includes('/discounts'),
+          }"
+        >
+          Discounts
+        </nuxt-link>
+      </div>
     </div>
-  </section>
-  <section class="flex justify-between items-center mb-10">
-    <div>
-      <h2 class="text-lg lg:text-2xl font-extrabold">Notes</h2>
-    </div>
-    <div>
-      <UButton
-        icon="i-heroicons-plus-circle"
-        color="primary"
-        variant="solid"
-        label="Add new"
-        size="lg"
-        @click="openNoteModal(null)"
-      />
-    </div>
+    <UButton
+      icon="i-heroicons-plus-circle"
+      color="primary"
+      variant="solid"
+      label="Add new"
+      size="sm"
+      @click="openNoteModal(null)"
+    />
   </section>
 
   <section v-if="!notesPending">

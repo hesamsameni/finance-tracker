@@ -1,44 +1,73 @@
 <template>
-  <section class="flex justify-end items-center my-10 gap-2">
-    <div>
-      <nuxt-link
+  <div
+    class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10 lg:hidden"
+  >
+    <nav class="flex justify-around py-3">
+      <NuxtLink
         :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/expenses'),
-          'text-gray-500': !$route.path.includes('/expenses'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/expenses') }"
       >
-        Expenses
-      </nuxt-link>
-    </div>
-    <div>
-      <nuxt-link
+        <UIcon name="i-heroicons-banknotes" class="text-2xl" />
+        <span class="text-xs">Expenses</span>
+      </NuxtLink>
+      <NuxtLink
         :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/notes'),
-          'text-gray-500': !$route.path.includes('/notes'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/notes') }"
       >
-        Notes
-      </nuxt-link>
-    </div>
-    <div>
-      <nuxt-link
+        <UIcon name="i-heroicons-pencil-square" class="text-2xl" />
+        <span class="text-xs">Notes</span>
+      </NuxtLink>
+      <NuxtLink
         :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
-        :class="{
-          'text-primary-500': $route.path.includes('/discounts'),
-          'text-gray-500': !$route.path.includes('/discounts'),
-        }"
+        class="flex flex-col items-center"
+        :class="{ 'text-primary-500': $route.path.includes('/discounts') }"
       >
-        Discounts
-      </nuxt-link>
+        <UIcon name="i-heroicons-receipt-percent" class="text-2xl" />
+        <span class="text-xs">Discounts</span>
+      </NuxtLink>
+    </nav>
+  </div>
+  <section
+    class="flex flex-col lg:flex-row lg:items-center justify-between mb-4"
+  >
+    <div class="hidden lg:flex justify-start items-center gap-2">
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/expenses'),
+            'text-gray-500': !$route.path.includes('/expenses'),
+          }"
+        >
+          Expenses
+        </nuxt-link>
+      </div>
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/notes?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/notes'),
+            'text-gray-500': !$route.path.includes('/notes'),
+          }"
+        >
+          Notes
+        </nuxt-link>
+      </div>
+      <div>
+        <nuxt-link
+          :to="`/boards/${boardId}/discounts?title=${$route.query.title}&currency=${$route.query.currency}`"
+          :class="{
+            'text-primary-500': $route.path.includes('/discounts'),
+            'text-gray-500': !$route.path.includes('/discounts'),
+          }"
+        >
+          Discounts
+        </nuxt-link>
+      </div>
     </div>
-  </section>
-  <section class="flex items-center justify-between mb-10">
-    <h1 class="text-lg lg:text-3xl font-extrabold">
-      {{ $route.query.title ? $route.query.title : boardId }}
-    </h1>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center justify-end gap-2">
       <UButton
         icon="i-heroicons-chart-bar"
         color="primary"
@@ -50,6 +79,14 @@
       <USelectMenu v-model="selectedView" :options="transactionViewOptions">
         <template #option-empty></template>
       </USelectMenu>
+      <UButton
+        icon="i-heroicons-plus-circle"
+        color="primary"
+        variant="solid"
+        label="Add new"
+        size="xs"
+        @click="expenseModalIsOpen = true"
+      />
     </div>
   </section>
 
@@ -137,28 +174,6 @@
   <section v-else>
     <div class="flex justify-between gap-2">
       <USkeleton class="h-16 w-full my-4" v-for="i in 4" :key="i" />
-    </div>
-  </section>
-
-  <section class="flex justify-between items-center my-10">
-    <div>
-      <h2 class="text-lg lg:text-2xl font-extrabold">Expenses</h2>
-    </div>
-    <div>
-      <ExpenseModal
-        v-model="expenseModalIsOpen"
-        @saved="refreshExpenses($route.params.id)"
-        :members="boardMembers"
-        :categories="fetchedCategories"
-      />
-      <UButton
-        icon="i-heroicons-plus-circle"
-        color="primary"
-        variant="solid"
-        label="Add new"
-        size="lg"
-        @click="expenseModalIsOpen = true"
-      />
     </div>
   </section>
 
