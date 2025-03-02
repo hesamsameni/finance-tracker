@@ -29,8 +29,8 @@
       </NuxtLink>
     </nav>
   </div>
-  <section class="hidden lg:flex justify-between items-center mb-4">
-    <div class="flex justify-start items-center gap-2">
+  <section class="flex items-center justify-end lg:justify-between mb-4">
+    <div class="hidden lg:flex justify-start items-center gap-2">
       <div>
         <nuxt-link
           :to="`/boards/${boardId}/expenses?title=${$route.query.title}&currency=${$route.query.currency}`"
@@ -121,7 +121,6 @@
   <section v-else>
     <USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
   </section>
-
   <NoteModal
     v-model="noteModalIsOpen"
     @saved="handleNoteSaved"

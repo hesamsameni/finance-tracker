@@ -207,6 +207,12 @@
       :categories="fetchedCategories"
     />
   </ClientOnly>
+  <ExpenseModal
+    v-model="expenseModalIsOpen"
+    @saved="refreshExpenses($route.params.id)"
+    :members="boardMembers"
+    :categories="fetchedCategories"
+  />
 </template>
 
 <script setup>
