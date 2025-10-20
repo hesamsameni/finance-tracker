@@ -130,6 +130,11 @@ const links = computed(() => {
       to: "/",
     },
     ...boardLinks,
+    {
+      label: "Calory Tracker",
+      icon: "i-heroicons-table-cells",
+      to: "/calory-tracker",
+    },
   ];
 });
 

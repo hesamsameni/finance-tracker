@@ -9,8 +9,6 @@ const initBoards = async () => {
 await initBoards();
 
 const links = computed(() => {
-  if (!boards.value) return [];
-
   const boardLinks = boards.value.flatMap((board) => [
     {
       label: board.title, // This represents the Expenses view
@@ -25,6 +23,11 @@ const links = computed(() => {
       to: "/",
     },
     ...boardLinks,
+    {
+      label: "Calory Tracker",
+      icon: "i-heroicons-table-cells",
+      to: "/calory-tracker",
+    },
   ];
 });
 </script>
