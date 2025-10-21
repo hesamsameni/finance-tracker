@@ -13,6 +13,7 @@
         {{ weeklyTotals.calories.toLocaleString() }} kcal
       </p>
     </div>
+
     <!-- Weekly Tiles -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div
@@ -59,10 +60,11 @@
 </template>
 
 <script setup lang="ts">
-import { useCaloryTracker } from "~/composables/useCaloryTracker";
+import { ref, computed } from "vue";
+import { useCaloryTracker } from "~/composables/calory-tracker/useCaloryTracker";
 import { parseISO, startOfWeek, addDays, format } from "date-fns";
 
-const { getEntriesByDate } = useCaloryTracker();
+const { getEntriesByMonth } = useCaloryTracker();
 const userDate = defineProps<{ userDate: string }>();
 
 const currentDate =
@@ -84,20 +86,34 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
 const mealsByDay = ref<Record<string, any[]>>({});
 
 const fetchWeekMeals = async () => {
+  const startStr = weekDates[0].date;
+  const endStr = weekDates[weekDates.length - 1].date;
+  const entries = (await getEntriesByMonth(startStr, endStr)) || [];
+  const grouped: Record<string, any[]> = {};
+  for (const e of entries) {
+    const d = e.date;
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(e);
+  }
   for (const day of weekDates) {
-    mealsByDay.value[day.date] = (await getEntriesByDate(day.date)) || [];
+    mealsByDay.value[day.date] = grouped[day.date] || [];
   }
 };
 fetchWeekMeals();
 
 const totalsByDay = (date: string) => {
   const meals = mealsByDay.value[date] || [];
-  return meals.reduce(
-    (acc, m) => {
-      acc.calories += m.calories;
-      acc.protein += m.protein;
-      acc.carbs += m.carbs;
-      acc.fat += m.fat;
+  return meals.reduce<{
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  }>(
+    (acc, m: any) => {
+      acc.calories += m.calories || 0;
+      acc.protein += m.protein || 0;
+      acc.carbs += m.carbs || 0;
+      acc.fat += m.fat || 0;
       return acc;
     },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -105,7 +121,12 @@ const totalsByDay = (date: string) => {
 };
 
 const weeklyTotals = computed(() => {
-  return weekDates.reduce(
+  return weekDates.reduce<{
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  }>(
     (acc, day) => {
       const dayTotals = totalsByDay(day.date);
       acc.calories += dayTotals.calories;

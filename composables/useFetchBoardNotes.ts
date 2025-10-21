@@ -1,9 +1,9 @@
 import { ref } from "vue";
 import { useSupabaseClient } from "#imports";
 
-export const useFetchBoardNotes = (boardId) => {
-  const supabase = useSupabaseClient();
-  const notes = ref([]);
+export const useFetchBoardNotes = (boardId: any) => {
+  const supabase = useSupabaseClient() as any;
+  const notes = ref<any[]>([]);
   const notesPending = ref(false);
 
   // Fetch all notes for the board
@@ -17,7 +17,7 @@ export const useFetchBoardNotes = (boardId) => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (err) {
       console.error("Error fetching notes:", err);
       return [];
@@ -27,11 +27,9 @@ export const useFetchBoardNotes = (boardId) => {
   };
 
   // Add a new note to the board
-  const addNote = async (newNote) => {
+  const addNote = async (newNote: any) => {
     try {
-      const { error } = await supabase
-        .from("board_notes")
-        .insert([{ ...newNote }]);
+      const { error } = await supabase.from("board_notes").insert([newNote]);
 
       if (error) throw error;
       await refreshNotes(); // Refresh the notes after adding
@@ -41,11 +39,11 @@ export const useFetchBoardNotes = (boardId) => {
   };
 
   // Update an existing note
-  const updateNote = async (updatedNote) => {
+  const updateNote = async (updatedNote: any) => {
     try {
       const { error } = await supabase
         .from("board_notes")
-        .update({ ...updatedNote })
+        .update(updatedNote)
         .eq("id", updatedNote.id);
 
       if (error) throw error;
@@ -56,7 +54,7 @@ export const useFetchBoardNotes = (boardId) => {
   };
 
   // Delete a note
-  const deleteNote = async (note) => {
+  const deleteNote = async (note: any) => {
     try {
       const { error } = await supabase
         .from("board_notes")

@@ -10,10 +10,10 @@ import {
 } from "date-fns";
 import { computed } from "vue";
 
-export function useSelectedTimePeriod(selectedView) {
+export function useSelectedTimePeriod(selectedView: any) {
   const dates = computed(() => {
-    if (!selectedView.value) {
-      return { start: null, end: null };
+    if (!selectedView?.value) {
+      return { start: null, end: null } as any;
     }
 
     const currentDate = new Date();

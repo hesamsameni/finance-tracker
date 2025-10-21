@@ -1,13 +1,14 @@
 export const useFetchBoards = () => {
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient() as any;
   const pending = ref(false);
-  const boards = ref([]);
+  const boards = ref<any[]>([]);
   const user = useSupabaseUser();
 
   const fetchBoards = async () => {
     pending.value = true;
     try {
       // Fetch board IDs where the current user is an owner or member
+      if (!user.value?.id) return [];
       const { data: boardMembersData, error: boardMembersError } =
         await supabase
           .from("board_members")
@@ -18,7 +19,7 @@ export const useFetchBoards = () => {
       if (boardMembersError) throw boardMembersError;
       if (!boardMembersData.length) return [];
 
-      const boardIds = boardMembersData.map((member) => member.board_id);
+      const boardIds = boardMembersData.map((member: any) => member.board_id);
 
       // Fetch boards based on the retrieved board IDs
       const { data, error } = await supabase
