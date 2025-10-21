@@ -1,10 +1,12 @@
-export const useFetchBoardCategories = (boardId) => {
-  const supabase = useSupabaseClient();
-  const categoriesPending = ref(false);
-  const error = ref(null);
-  const categories = ref([]);
+import { ref } from "vue";
 
-  const getCategories = async (boardId) => {
+export const useFetchBoardCategories = (boardId: any) => {
+  const supabase = useSupabaseClient() as any;
+  const categoriesPending = ref(false);
+  const error = ref<any>(null);
+  const categories = ref<any[]>([]);
+
+  const getCategories = async (boardId: any) => {
     categoriesPending.value = true;
     error.value = null;
 
@@ -18,7 +20,7 @@ export const useFetchBoardCategories = (boardId) => {
       if (fetchError) throw fetchError;
 
       // Ensure each category has required properties with defaults
-      categories.value = (data || []).map((cat) => ({
+      categories.value = (data || []).map((cat: any) => ({
         label: cat.label,
         icon: cat.icon || "i-heroicons-question-mark-circle-20-solid", // Default icon
         color: cat.color || "gray", // Default color

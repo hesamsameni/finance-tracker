@@ -62,10 +62,11 @@
 </template>
 
 <script setup lang="ts">
-import { useCaloryTracker } from "~/composables/useCaloryTracker";
+import { ref, computed } from "vue";
+import { useCaloryTracker } from "~/composables/calory-tracker/useCaloryTracker";
 import { parseISO, startOfMonth, endOfMonth, addDays, format } from "date-fns";
 
-const { getEntriesByDate } = useCaloryTracker();
+const { getEntriesByMonth } = useCaloryTracker();
 const userDate = defineProps<{ userDate: string }>();
 
 const currentDate =
@@ -95,20 +96,36 @@ const monthName = format(start, "MMMM yyyy"); // e.g., October 2025
 const mealsByDay = ref<Record<string, any[]>>({});
 
 const fetchMonthMeals = async () => {
+  const startStr = format(start, "yyyy-MM-dd");
+  const endStr = format(end, "yyyy-MM-dd");
+  const entries = (await getEntriesByMonth(startStr, endStr)) || [];
+  // Group by date
+  const grouped: Record<string, any[]> = {};
+  for (const e of entries) {
+    const d = e.date;
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(e);
+  }
+  // Ensure every day of month has an array (even empty)
   for (const day of monthDates) {
-    mealsByDay.value[day.date] = (await getEntriesByDate(day.date)) || [];
+    mealsByDay.value[day.date] = grouped[day.date] || [];
   }
 };
 fetchMonthMeals();
 
 const totalsByDay = (date: string) => {
   const meals = mealsByDay.value[date] || [];
-  return meals.reduce(
-    (acc, m) => {
-      acc.calories += m.calories;
-      acc.protein += m.protein;
-      acc.carbs += m.carbs;
-      acc.fat += m.fat;
+  return meals.reduce<{
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  }>(
+    (acc, m: any) => {
+      acc.calories += m.calories || 0;
+      acc.protein += m.protein || 0;
+      acc.carbs += m.carbs || 0;
+      acc.fat += m.fat || 0;
       return acc;
     },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -116,7 +133,12 @@ const totalsByDay = (date: string) => {
 };
 
 const monthlyTotals = computed(() => {
-  return monthDates.reduce(
+  return monthDates.reduce<{
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  }>(
     (acc, day) => {
       const dayTotals = totalsByDay(day.date);
       acc.calories += dayTotals.calories;

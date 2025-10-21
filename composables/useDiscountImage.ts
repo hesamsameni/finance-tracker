@@ -1,5 +1,7 @@
-export const useDiscountImage = (discountImage) => {
-  const supabase = useSupabaseClient();
+import { ref } from "vue";
+
+export const useDiscountImage = (discountImage: string | null | undefined) => {
+  const supabase = useSupabaseClient() as any;
 
   const getPublicUrl = () => {
     if (!discountImage) return null;
@@ -8,7 +10,7 @@ export const useDiscountImage = (discountImage) => {
       .from("discounts")
       .getPublicUrl(discountImage);
 
-    return data.publicUrl;
+    return data?.publicUrl ?? null;
   };
 
   const url = ref(getPublicUrl());

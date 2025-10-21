@@ -1,4 +1,6 @@
-export function useBoardData(boardId, selectedView) {
+import { computed } from "vue";
+
+export function useBoardData(boardId: any, selectedView: any) {
   const { dates } = useSelectedTimePeriod(selectedView);
 
   const {
@@ -23,8 +25,8 @@ export function useBoardData(boardId, selectedView) {
     useFetchBoardNotes(boardId);
 
   const categoriesForChart = computed(() => {
-    const categoryMap = {};
-    expenses.value.forEach((expense) => {
+    const categoryMap: Record<string, number> = {};
+    expenses.value.forEach((expense: any) => {
       const category = expense.category || "Uncategorized";
       categoryMap[category] = (categoryMap[category] || 0) + expense.amount;
     });

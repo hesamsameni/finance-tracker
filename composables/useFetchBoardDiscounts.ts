@@ -1,9 +1,11 @@
-export const useFetchBoardDiscounts = (boardId) => {
-  const supabase = useSupabaseClient();
-  const discountsPending = ref(false);
-  const discounts = ref([]);
+import { ref } from "vue";
 
-  const fetchDiscounts = async (boardId) => {
+export const useFetchBoardDiscounts = (boardId: any) => {
+  const supabase = useSupabaseClient() as any;
+  const discountsPending = ref(false);
+  const discounts = ref<any[]>([]);
+
+  const fetchDiscounts = async (boardId: any) => {
     discountsPending.value = true;
     try {
       const { data, error } = await supabase
@@ -20,7 +22,7 @@ export const useFetchBoardDiscounts = (boardId) => {
     }
   };
 
-  const refreshDiscounts = async (boardId) => {
+  const refreshDiscounts = async (boardId: any) => {
     discounts.value = await fetchDiscounts(boardId);
   };
 

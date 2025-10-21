@@ -1,13 +1,15 @@
+import { computed } from "vue";
+
 export const useCategoryTotals = (
-  expenses,
-  categories,
+  expenses: any,
+  categories: any,
   excludeCategory = "Carry Over"
 ) => {
   const categoryTotals = computed(() => {
-    const totals = {};
+    const totals: Record<string, number> = {};
     if (!expenses.value) return totals; // Handle undefined expenses
 
-    expenses.value.forEach((expense) => {
+    expenses.value.forEach((expense: any) => {
       if (expense.category === excludeCategory) return; // Exclude "Carry Over"
       if (!totals[expense.category]) {
         totals[expense.category] = 0;
@@ -17,15 +19,15 @@ export const useCategoryTotals = (
     return totals;
   });
 
-  const getCategoryIcon = (category) => {
+  const getCategoryIcon = (category: string) => {
     if (!categories.value) return "i-heroicons-question-mark-circle-20-solid"; // Handle undefined categories
-    const cat = categories.value.find((c) => c.label === category);
+    const cat = categories.value.find((c: any) => c.label === category);
     return cat?.icon || "i-heroicons-question-mark-circle-20-solid";
   };
 
-  const getCategoryColor = (category) => {
+  const getCategoryColor = (category: string) => {
     if (!categories.value) return "gray"; // Handle undefined categories
-    const cat = categories.value.find((c) => c.label === category);
+    const cat = categories.value.find((c: any) => c.label === category);
     return cat?.color || "gray";
   };
 

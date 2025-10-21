@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCaloryTracker } from "~/composables/useCaloryTracker";
+import { useCaloryTracker } from "~/composables/calory-tracker/useCaloryTracker";
 import WeeklyView from "~/components/calory-tracker/weekly-view.vue";
 import MonthlyView from "~/components/calory-tracker/monthly-view.vue";
 import { format, parseISO } from "date-fns";

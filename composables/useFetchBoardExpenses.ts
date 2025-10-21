@@ -1,12 +1,14 @@
-export const useFetchBoardExpenses = (period, boardId) => {
-  const supabase = useSupabaseClient();
+import { ref, computed, watch } from "vue";
+
+export const useFetchBoardExpenses = (period: any, boardId: any) => {
+  const supabase = useSupabaseClient() as any;
   const pending = ref(false);
-  const expenses = ref([]);
-  const boardMembers = ref([]);
+  const expenses = ref<any[]>([]);
+  const boardMembers = ref<any[]>([]);
 
   watch(period, async () => await refreshExpenses(boardId));
 
-  const getBoardMembers = async (boardId) => {
+  const getBoardMembers = async (boardId: any) => {
     pending.value = true;
     try {
       const { data, error } = await supabase
@@ -23,7 +25,7 @@ export const useFetchBoardExpenses = (period, boardId) => {
     }
   };
 
-  const fetchExpenses = async (boardId) => {
+  const fetchExpenses = async (boardId: any) => {
     pending.value = true;
     try {
       const { data } = await useAsyncData(
@@ -36,16 +38,16 @@ export const useFetchBoardExpenses = (period, boardId) => {
             .gte("purchase_date", period.value.from.toISOString())
             .lte("purchase_date", period.value.to.toISOString())
             .order("purchase_date", { ascending: false });
-          return error ? [] : data;
+          return error ? [] : data || [];
         }
       );
-      return data.value;
+      return data.value || [];
     } finally {
       pending.value = false;
     }
   };
 
-  const fetchAllExpenses = async (boardId) => {
+  const fetchAllExpenses = async (boardId: any) => {
     try {
       const { data } = await useAsyncData(async () => {
         const { data, error } = await supabase
@@ -62,26 +64,26 @@ export const useFetchBoardExpenses = (period, boardId) => {
     }
   };
 
-  const refreshExpenses = async (boardId) => {
+  const refreshExpenses = async (boardId: any) => {
     expenses.value = await fetchExpenses(boardId);
   };
 
-  const loadBoardMembers = async (boardId) => {
+  const loadBoardMembers = async (boardId: any) => {
     boardMembers.value = await getBoardMembers(boardId);
   };
 
   const expensesByUser = computed(() => {
-    return boardMembers.value.reduce((acc, user) => {
+    return boardMembers.value.reduce((acc: Record<string, any>, user: any) => {
       acc[user.user_id] = expenses.value.filter(
-        (expense) => expense.paid_by === user.user_id
+        (expense: any) => expense.paid_by === user.user_id
       );
       return acc;
     }, {});
   });
 
-  const getUserExpenses = (userId) => {
+  const getUserExpenses = (userId: string) => {
     return (expensesByUser.value[userId] || []).reduce(
-      (total, expense) => total + (expense.amount || 0),
+      (total: number, expense: any) => total + (expense.amount || 0),
       0
     );
   };
