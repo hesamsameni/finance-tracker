@@ -13,14 +13,7 @@
         {{ weeklyTotals.calories.toLocaleString() }} kcal
       </p>
     </div>
-    <!-- Weekly Insights -->
-    <div>
-      <h3 class="text-xl font-semibold mb-4">Weekly Insights</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <weekly-insight-pie :userDate="userDate" />
-        <weekly-calory-bar :userDate="userDate" />
-      </div>
-    </div>
+
     <!-- Weekly Tiles -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div
@@ -70,8 +63,6 @@
 import { ref, computed } from "vue";
 import { useCaloryTracker } from "~/composables/calory-tracker/useCaloryTracker";
 import { parseISO, startOfWeek, addDays, format } from "date-fns";
-import WeeklyInsightPie from "~/components/calory-tracker/weekly-insight-pie.vue";
-import WeeklyCaloryBar from "~/components/calory-tracker/weekly-calory-bar.vue";
 
 const { getEntriesByMonth } = useCaloryTracker();
 const userDate = defineProps<{ userDate: string }>();

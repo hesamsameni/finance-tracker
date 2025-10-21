@@ -16,6 +16,8 @@
 </template>
 
 <script setup>
+import AppHeader from "~/components/shared/app-header.vue";
+import AppSidebar from "~/components/shared/app-sidebar.vue";
 // Link to Google Fonts
 useHead({
   link: [
