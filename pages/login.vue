@@ -114,8 +114,9 @@ const handleLogin = async () => {
     });
 
     if (error) {
+      console.error("Magic link error:", error);
       toastError({
-        title: "Something went wrong!",
+        title: "Error sending magic link",
         description: error.message,
       });
     } else {

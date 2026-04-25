@@ -19,15 +19,22 @@ const routeQuery = ref({
   inviteToken: route.query.inviteToken,
 });
 
-if (!user.value) {
-  router.push({
-    path: "/login",
-    query: {
-      redirect: "/join",
-      inviteToken: routeQuery.value.inviteToken,
-    },
-  });
-}
+// Wait for auth state to initialize before redirecting
+watch(
+  user,
+  (newUser) => {
+    if (newUser === null) {
+      router.push({
+        path: "/login",
+        query: {
+          redirect: "/join",
+          inviteToken: routeQuery.value.inviteToken,
+        },
+      });
+    }
+  },
+  { immediate: true },
+);
 
 const handleModalClose = () => {
   router.push("/");

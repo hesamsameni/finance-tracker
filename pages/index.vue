@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useBoardTracker } from "~/composables/expense-tracker/useBoardTracker";
 const user = useSupabaseUser();
 const addBoardModalIsOpen = ref(false);
@@ -109,11 +109,18 @@ const { toastError, toastSuccess } = useAppToast();
 const router = useRouter();
 const { updateFavoriteBoard } = useBoardTracker();
 
-if (!user.value) {
-  router.push({
-    path: "/login",
-  });
-}
+// Wait for auth state to initialize before redirecting
+watch(
+  user,
+  (newUser) => {
+    if (newUser === null) {
+      router.push({
+        path: "/login",
+      });
+    }
+  },
+  { immediate: true },
+);
 
 const toggleFavoriteBoard = async (board) => {
   try {
