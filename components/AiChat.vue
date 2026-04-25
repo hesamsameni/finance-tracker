@@ -72,12 +72,12 @@
               Ask about your expenses
             </p>
             <p class="text-xs text-gray-400 dark:text-gray-500">
-              Your full spending history is loaded as context
+              AI-powered insights into your spending patterns
             </p>
           </div>
           <div class="flex flex-wrap gap-2 justify-center">
             <button
-              v-for="s in suggestions"
+              v-for="s in smartSuggestions"
               :key="s"
               class="text-xs px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700 text-gray-600 dark:text-gray-400 hover:ring-primary-300 dark:hover:ring-primary-700 transition-all text-left"
               @click="sendSuggestion(s)"
@@ -172,6 +172,10 @@ const props = defineProps({
     type: String,
     default: "EUR",
   },
+  currentUser: {
+    type: String,
+    default: "Unknown",
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -188,13 +192,6 @@ const providers = [
   { id: "deepseek", label: "DeepSeek" },
 ];
 
-const suggestions = [
-  "How much did I spend last month?",
-  "What's my biggest spending category?",
-  "Who spent the most overall?",
-  "Compare my spending month by month",
-];
-
 const messages = ref([]);
 const conversationHistory = ref([]);
 const input = ref("");
@@ -208,21 +205,16 @@ const scrollToBottom = async () => {
   }
 };
 
-const systemPrompt = computed(() => {
+// Computed statistics
+const stats = computed(() => {
   const curr = props.currency || "EUR";
-  const fmt = (n) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: curr,
-    }).format(n);
-
   const memberTotals = {};
+  const categoryTotals = {};
+  const monthTotals = {};
+
   props.members.forEach((m) => {
     memberTotals[m.user_nickname] = 0;
   });
-
-  const categoryTotals = {};
-  const monthTotals = {};
 
   props.expenses.forEach((e) => {
     const member = props.members.find((m) => m.user_id === e.paid_by);
@@ -234,6 +226,97 @@ const systemPrompt = computed(() => {
   });
 
   const grandTotal = props.expenses.reduce((s, e) => s + e.amount, 0);
+  const monthCount = Object.keys(monthTotals).length || 1;
+  const avgMonthly = grandTotal / monthCount;
+
+  const sortedMonths = Object.entries(monthTotals).sort();
+  const highestMonth = sortedMonths.reduce(
+    (max, curr) => (curr[1] > max[1] ? curr : max),
+    sortedMonths[0] || ["", 0],
+  );
+
+  const topCategory = Object.entries(categoryTotals).sort(
+    (a, b) => b[1] - a[1],
+  )[0] || ["", 0];
+
+  const memberNames = Object.keys(memberTotals);
+  const splitDifference =
+    memberNames.length === 2
+      ? Math.abs(memberTotals[memberNames[0]] - memberTotals[memberNames[1]])
+      : 0;
+
+  // Get recent months (last 3)
+  const recentMonths = sortedMonths.slice(-3);
+
+  // Get dates
+  const dates = props.expenses
+    .map((e) => e.purchase_date)
+    .filter(Boolean)
+    .sort();
+  const dateRange =
+    dates.length > 0
+      ? `${dates[0].split("T")[0]} to ${dates[dates.length - 1].split("T")[0]}`
+      : "N/A";
+
+  return {
+    curr,
+    grandTotal,
+    avgMonthly,
+    memberTotals,
+    categoryTotals,
+    monthTotals,
+    highestMonth,
+    topCategory,
+    splitDifference,
+    recentMonths,
+    dateRange,
+  };
+});
+
+// Smart suggestions based on data
+const smartSuggestions = computed(() => {
+  const partner =
+    props.members.find((m) => m.user_nickname !== props.currentUser)
+      ?.user_nickname || "partner";
+  const topCat = stats.value.topCategory[0] || "groceries";
+
+  return [
+    "How much have we spent this month?",
+    `What are our biggest ${topCat.toLowerCase()} expenses?`,
+    `Compare my spending to ${partner}'s`,
+    "Show me our spending trend",
+  ];
+});
+
+// Detect what context is needed based on user query
+const getRelevantContext = (userMessage) => {
+  const msg = userMessage.toLowerCase();
+
+  const needsTransactions =
+    /transaction|purchase|bought|specific|item|what did|show me.*for/i.test(
+      msg,
+    ) ||
+    /recent|last week|yesterday|today|this week/i.test(msg) ||
+    /list|detail/i.test(msg);
+
+  return {
+    includeTransactions: needsTransactions,
+  };
+};
+
+// Build smart system prompt
+const buildSystemPrompt = (context = {}) => {
+  const s = stats.value;
+  const fmt = (n) =>
+    new Intl.NumberFormat("en", {
+      style: "currency",
+      currency: s.curr,
+    }).format(n);
+
+  const formatMonth = (monthKey) => {
+    const date = new Date(monthKey + "-01");
+    return date.toLocaleDateString("en", { month: "short", year: "numeric" });
+  };
 
   const lines = (obj, sort = false) => {
     let entries = Object.entries(obj);
@@ -241,48 +324,81 @@ const systemPrompt = computed(() => {
     return entries.map(([k, v]) => `  ${k}: ${fmt(v)}`).join("\n");
   };
 
-  const expensesList = props.expenses.map((e) => {
-    const member = props.members.find((m) => m.user_id === e.paid_by);
-    return {
-      title: e.title,
-      category: e.category,
-      amount: e.amount,
-      date: e.purchase_date?.split("T")[0],
-      paid_by: member?.user_nickname || "Unknown",
-    };
-  });
+  const monthlyLines = Object.entries(s.monthTotals)
+    .sort()
+    .map(([k, v]) => `  ${formatMonth(k)}: ${fmt(v)}`)
+    .join("\n");
 
-  return `You are a finance assistant. Use the PRE-COMPUTED STATISTICS for all totals and summaries — never manually sum from the raw records.
+  const recentMonthsText = s.recentMonths
+    .map(([k, v]) => `  ${formatMonth(k)}: ${fmt(v)}`)
+    .join("\n");
 
-Currency: ${curr}
-Members: ${props.members.map((m) => m.user_nickname).join(", ") || "N/A"}
-Total records: ${props.expenses.length}
+  let prompt = `You are a helpful finance assistant for a shared expense tracker.
 
-=== PRE-COMPUTED STATISTICS (always use these for totals) ===
+**Context:**
+- Currency: ${s.curr}
+- You're talking to: ${props.currentUser}
+- Household members: ${props.members.map((m) => m.user_nickname).join(" & ")}
+- Tracking period: ${s.dateRange}
+- Total expenses tracked: ${props.expenses.length}
 
-Grand total (all time): ${fmt(grandTotal)}
+**Key Statistics:**
 
-Per member:
-${lines(memberTotals, true)}
+Overall: ${fmt(s.grandTotal)} spent (avg ${fmt(s.avgMonthly)}/month)
 
-Per category:
-${lines(categoryTotals, true)}
+By person:
+${lines(s.memberTotals, true)}
+${s.splitDifference < 100 ? "(Split is roughly balanced)" : `(${fmt(s.splitDifference)} difference)`}
 
-Per month (YYYY-MM):
-${Object.entries(monthTotals)
-  .sort()
-  .map(([k, v]) => `  ${k}: ${fmt(v)}`)
-  .join("\n")}
+Top categories:
+${lines(s.categoryTotals, true)}
 
-=== RAW RECORDS (use only for item-level lookups) ===
-${JSON.stringify(expensesList)}
+Recent months:
+${recentMonthsText}
 
-Rules:
-- For any question about totals or summaries, READ from the pre-computed section above — do not sum raw records
-- For period-specific totals not in the monthly breakdown, sum only the relevant months from the monthly section
-- Format all amounts in ${curr}
-- Be concise`;
-});
+All months:
+${monthlyLines}
+
+Insights:
+- Highest spending month: ${formatMonth(s.highestMonth[0])} with ${fmt(s.highestMonth[1])}
+- Top category: ${s.topCategory[0]} (${fmt(s.topCategory[1])})
+
+**Your job:**
+- Answer questions using these pre-computed statistics above
+- Be conversational and warm (use "you" and "we" naturally)
+- Highlight interesting patterns when relevant
+- Keep responses under 3 sentences unless asked for details
+- Always format money in ${s.curr}
+
+**Don't:**
+- Recalculate totals (they're pre-computed above)
+- Be overly formal or robotic
+- Say "based on the data" or similar phrases`;
+
+  // Only include raw transactions if needed
+  if (context.includeTransactions) {
+    const expensesList = props.expenses
+      .map((e) => {
+        const member = props.members.find((m) => m.user_id === e.paid_by);
+        return {
+          title: e.title,
+          description: e.description,
+          category: e.category,
+          amount: e.amount,
+          date: e.purchase_date?.split("T")[0],
+          paid_by: member?.user_nickname || "Unknown",
+        };
+      })
+      .slice(-50); // Only last 50 transactions to save tokens
+
+    prompt += `\n\n**Recent Transactions (for detailed queries only):**
+${JSON.stringify(expensesList, null, 2)}
+
+Use these only when asked about specific items or recent purchases.`;
+  }
+
+  return prompt;
+};
 
 const send = async () => {
   const text = input.value.trim();
@@ -296,17 +412,25 @@ const send = async () => {
   await scrollToBottom();
 
   try {
+    // Detect what context is needed
+    const context = getRelevantContext(text);
+
+    // Build smart system prompt
+    const systemPrompt = buildSystemPrompt(context);
+
     const apiMessages = [
-      { role: "system", content: systemPrompt.value },
+      { role: "system", content: systemPrompt },
       ...conversationHistory.value,
     ];
 
     const content = await chat(apiMessages);
     messages.value.push({ id: Date.now() + 1, role: "assistant", content });
     conversationHistory.value.push({ role: "assistant", content });
-  } catch {
-    const content =
-      "Sorry, something went wrong. Please check your API key and try again.";
+  } catch (err) {
+    console.error("Chat error:", err);
+    const content = err.message?.includes("API key")
+      ? "Please add your API key in settings to use AI features."
+      : "Sorry, something went wrong. Please try again.";
     messages.value.push({ id: Date.now() + 1, role: "assistant", content });
     conversationHistory.value.pop();
   } finally {
