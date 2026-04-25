@@ -19,5 +19,6 @@ export default defineEventHandler(async (event) => {
     messages,
   });
 
+  console.log("token usage", response.usage);
   return { content: response.choices[0].message?.content ?? "" };
 });

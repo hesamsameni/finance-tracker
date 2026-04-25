@@ -1,6 +1,8 @@
 <template>
   <!-- Toolbar -->
-  <section class="flex items-center justify-between mb-6">
+  <section
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+  >
     <div class="flex items-center gap-2">
       <UButton
         icon="i-heroicons-chart-bar"
@@ -12,7 +14,7 @@
       />
       <DateRangePicker v-model="dateRange" />
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center justify-end gap-2">
       <UButton
         icon="i-heroicons-sparkles"
         color="primary"
@@ -26,7 +28,7 @@
         icon="i-heroicons-plus-circle"
         color="primary"
         variant="solid"
-        label="Add expense"
+        label="Add"
         size="sm"
         @click="expenseModalIsOpen = true"
       />
@@ -166,6 +168,7 @@
     :expenses="aiExpenses"
     :members="boardMembers"
     :currency="$route.query.currency"
+    :current-user="currentUserNickname"
   />
 
   <!-- Modals -->
@@ -235,6 +238,14 @@ const singleCategory = computed(() => {
       (category) => category.label !== "Carry Over",
     ).length === 1
   );
+});
+
+const currentUserNickname = computed(() => {
+  const user = useSupabaseUser();
+  const currentMember = boardMembers.value.find(
+    (m) => m.user_id === user.value?.id,
+  );
+  return currentMember?.user_nickname || "Unknown";
 });
 
 const initializeData = async () => {
