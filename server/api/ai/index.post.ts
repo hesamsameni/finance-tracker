@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const { client, model } = createAiClient(provider);
-  console.log("[AI] Using model:", model);
+
   const response = await client.chat.completions.create({
     model: customModel || model,
     messages,
