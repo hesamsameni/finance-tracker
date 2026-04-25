@@ -16,15 +16,6 @@
     </div>
     <div class="flex items-center justify-end gap-2">
       <UButton
-        icon="i-heroicons-sparkles"
-        color="primary"
-        variant="ghost"
-        label="AI"
-        size="sm"
-        :loading="aiLoading"
-        @click="openAiChat"
-      />
-      <UButton
         icon="i-heroicons-plus-circle"
         color="primary"
         variant="solid"
@@ -110,18 +101,36 @@
       <div
         v-for="(total, category) in categoryTotals"
         :key="category"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700"
+        @click="toggleCategory(String(category))"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer transition-colors"
+        :class="
+          selectedCategory === category
+            ? 'bg-primary-100 dark:bg-primary-900/30 ring-1 ring-primary-300 dark:ring-primary-700'
+            : 'bg-gray-50 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+        "
       >
         <UIcon
           :name="getCategoryIcon(String(category))"
           :class="`text-${getCategoryColor(String(category))}-400 w-3.5 h-3.5`"
         />
-        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{
-          category
-        }}</span>
-        <span class="text-xs text-gray-400 dark:text-gray-500">{{
-          formatCurrency(Number(total))
-        }}</span>
+        <span
+          class="text-xs font-medium"
+          :class="
+            selectedCategory === category
+              ? 'text-primary-700 dark:text-primary-300'
+              : 'text-gray-700 dark:text-gray-300'
+          "
+          >{{ category }}</span
+        >
+        <span
+          class="text-xs"
+          :class="
+            selectedCategory === category
+              ? 'text-primary-500 dark:text-primary-400'
+              : 'text-gray-400 dark:text-gray-500'
+          "
+          >{{ formatCurrency(Number(total)) }}</span
+        >
       </div>
     </div>
   </UCard>
@@ -135,11 +144,11 @@
   <UCard :ui="{ body: { padding: 'p-0' } }">
     <div v-if="!pending">
       <div
-        v-if="expenses.length"
+        v-if="filteredExpenses.length"
         class="divide-y divide-gray-100 dark:divide-gray-800"
       >
         <Expense
-          v-for="expense in expenses"
+          v-for="expense in filteredExpenses"
           :key="expense.id"
           :expense="expense"
           @deleted="refreshExpenses($route.params.id)"
@@ -162,15 +171,6 @@
     </div>
   </UCard>
 
-  <!-- AI Chat -->
-  <AiChat
-    v-model="aiChatIsOpen"
-    :expenses="aiExpenses"
-    :members="boardMembers"
-    :currency="$route.query.currency"
-    :current-user="currentUserNickname"
-  />
-
   <!-- Modals -->
   <ClientOnly>
     <ExpensesComparisonModal
@@ -190,6 +190,12 @@
 
 <script setup>
 import { startOfMonth, endOfMonth } from "date-fns";
+import { useExpenseTracker } from "~/composables/expense-tracker/useExpenseTracker";
+import Expense from "~/components/expense-tracker/expense.vue";
+import ExpenseModal from "~/components/expense-tracker/expense-modal.vue";
+import ExpensesPieChart from "~/components/expense-tracker/expenses-pie-chart.vue";
+import ExpensesBarChart from "~/components/expense-tracker/expenses-bar-chart.vue";
+import ExpensesComparisonModal from "~/components/expense-tracker/ExpensesComparisonModal.vue";
 
 // Reactive variables
 const dateRange = ref({
@@ -199,28 +205,37 @@ const dateRange = ref({
 const expenseModalIsOpen = ref(false);
 const compareExpensesModalIsOpen = ref(false);
 const comparisonExpenses = ref([]); // Holds expenses for comparison
-const comparisonLoading = ref(false); // Loading state for comparison data
-const aiChatIsOpen = ref(false);
-const aiExpenses = ref([]);
-const aiLoading = ref(false);
+const comparisonLoading = ref(false); // Loading state for comparison
+const selectedCategory = ref(null); // Selected category filter data
 
 const route = useRoute();
 const boardId = route.params.id;
 
 const {
+  expenses,
+  boardMembers,
+  categories: fetchedCategories,
   pending,
   refreshExpenses,
-  fetchAllExpenses,
-  getUsers,
-  expenses,
+  getAllExpenses: fetchAllExpenses,
+  getBoardMembers: getUsers,
+  getBoardCategories,
   getUserExpenses,
-  boardMembers,
-  fetchedCategories,
   categoriesForChart,
-} = useBoardData(boardId, dateRange);
+} = useExpenseTracker(dateRange);
 
 const { categoryTotals, totalSpent, getCategoryIcon, getCategoryColor } =
   useCategoryTotals(expenses, fetchedCategories);
+
+const toggleCategory = (category) => {
+  selectedCategory.value =
+    selectedCategory.value === category ? null : category;
+};
+
+const filteredExpenses = computed(() => {
+  if (!selectedCategory.value) return expenses.value;
+  return expenses.value.filter((e) => e.category === selectedCategory.value);
+});
 
 const formatCurrency = (amount) => {
   const curr = route.query.currency || "EUR";
@@ -249,8 +264,9 @@ const currentUserNickname = computed(() => {
 });
 
 const initializeData = async () => {
-  await refreshExpenses(boardId);
+  await refreshExpenses(boardId, dateRange.value.from, dateRange.value.to);
   await getUsers(boardId);
+  await getBoardCategories(boardId);
 
   if (singleCategory.value) {
     dateRange.value = { from: new Date(0), to: endOfMonth(new Date()) };
@@ -259,15 +275,10 @@ const initializeData = async () => {
 
 initializeData();
 
-const openAiChat = async () => {
-  if (!aiExpenses.value.length) {
-    aiLoading.value = true;
-    const all = await fetchAllExpenses(boardId);
-    aiExpenses.value = (all ?? []).filter((e) => e.category !== "Carry Over");
-    aiLoading.value = false;
-  }
-  aiChatIsOpen.value = true;
-};
+// Watch for date range changes
+watch(dateRange, async () => {
+  await refreshExpenses(boardId, dateRange.value.from, dateRange.value.to);
+});
 
 // Fetch data for all time months when comparing expenses
 const openCompareExpensesModal = async () => {

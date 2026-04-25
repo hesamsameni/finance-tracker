@@ -106,6 +106,7 @@
 
 <script setup>
 import { format } from "date-fns";
+import ExpenseModal from "./expense-modal.vue";
 
 const props = defineProps({
   expense: Object,

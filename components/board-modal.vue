@@ -182,7 +182,7 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
 import { categories } from "~/constants";
-import { useBoardApi } from "~/composables/useBoardApi";
+import { useBoardTracker } from "~/composables/expense-tracker/useBoardTracker";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -208,7 +208,7 @@ const {
   addBoardMember,
   addCategoriesToBoard,
   deleteBoardCategories,
-} = useBoardApi();
+} = useBoardTracker();
 const user = useSupabaseUser();
 
 // Refs
@@ -241,7 +241,7 @@ const saveButtonLabel = computed(
     ({
       add: "Create",
       edit: "Save",
-    }[props.mode])
+    })[props.mode],
 );
 
 const schema = z.object({
@@ -295,10 +295,16 @@ const handleSave = async () => {
   isLoading.value = true;
 
   try {
+    const boardData = {
+      title: state.value.title,
+      currency: state.value.currency,
+      invite_token: state.value.invite_token,
+      auto_carry_over: state.value.auto_carry_over,
+    };
     const boardId =
       props.mode === "add"
-        ? await createBoard(state.value)
-        : await updateBoard(props.board.id, state.value);
+        ? await createBoard(boardData)
+        : await updateBoard(props.board.id, boardData);
 
     if (props.mode === "add") {
       await addBoardMember(boardId, state.value.nickname);
@@ -312,7 +318,7 @@ const handleSave = async () => {
     if (selectedCategories.value.length > 0) {
       const categoriesToInsert = selectedCategories.value.map((label) => {
         const category = availableCategories.value.find(
-          (c) => c.label === label
+          (c) => c.label === label,
         );
         return {
           board_id: boardId || props.board.id,
@@ -389,6 +395,6 @@ watch(
       });
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>

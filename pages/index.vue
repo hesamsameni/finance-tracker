@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { useBoardTracker } from "~/composables/expense-tracker/useBoardTracker";
 const user = useSupabaseUser();
 const addBoardModalIsOpen = ref(false);
 const editBoardModalIsOpen = ref(false);
@@ -106,7 +107,7 @@ const deleteBoardModalIsOpen = ref(false);
 const selectedBoard = ref(null);
 const { toastError, toastSuccess } = useAppToast();
 const router = useRouter();
-const { updateFavoriteBoard } = useBoardApi();
+const { updateFavoriteBoard } = useBoardTracker();
 
 if (!user.value) {
   router.push({
