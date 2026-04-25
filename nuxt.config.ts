@@ -2,22 +2,23 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      charset: 'utf-8',
+      charset: "utf-8",
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1"',
-    }
+    },
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: "2024-11-01",
   devtools: { enabled: false },
-  modules: ['@nuxt/ui', '@nuxtjs/supabase',  'nuxt-gtag',  'nuxt-echarts'],
+  modules: ["@nuxt/ui", "@nuxtjs/supabase", "nuxt-gtag", "nuxt-echarts"],
   gtag: {
-    id: process.env.NUXT_PUBLIC_GA_ID
+    id: process.env.NUXT_PUBLIC_GA_ID,
   },
   supabase: {
-    redirect: false
+    redirect: false,
   },
   runtimeConfig: {
     deepseekApiKey: process.env.NUXT_DEEPSEEK_API_KEY,
     openaiApiKey: process.env.NUXT_OPENAI_API_KEY,
+    openrouterApiKey: process.env.NUXT_OPENROUTER_API_KEY,
     supaBaseURL: process.env.SUPABASE_URL,
     supaBaseKey: process.env.SUPABASE_KEY,
     public: {
@@ -25,8 +26,13 @@ export default defineNuxtConfig({
     },
   },
   echarts: {
-    renderer: 'svg',
-    charts: ['BarChart', 'PieChart'],
-    components: ['DatasetComponent', 'GridComponent', 'TooltipComponent', 'LegendComponent'],
+    renderer: "svg",
+    charts: ["BarChart", "PieChart"],
+    components: [
+      "DatasetComponent",
+      "GridComponent",
+      "TooltipComponent",
+      "LegendComponent",
+    ],
   },
-})
+});

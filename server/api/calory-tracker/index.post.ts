@@ -1,20 +1,19 @@
-// server/api/analyze-meals.post.ts
-import OpenAI from "openai";
 import { serverSupabaseUser } from "#supabase/server";
-
-const openai = new OpenAI({ apiKey: useRuntimeConfig().openaiApiKey });
+import { createAiClient } from "~/server/utils/createAiClient";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   if (!user) throw createError({ statusCode: 401, message: "Unauthorized" });
 
   const body = await readBody(event);
-  const { prompt } = body;
+  const { prompt, provider = "openai" } = body;
   if (!prompt)
     throw createError({ statusCode: 400, message: "Missing prompt" });
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+  const { client, model } = createAiClient(provider);
+
+  const response = await client.chat.completions.create({
+    model,
     messages: [
       {
         role: "system",

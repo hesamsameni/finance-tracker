@@ -39,7 +39,7 @@ export const useFetchBoardExpenses = (period: any, boardId: any) => {
             .lte("purchase_date", period.value.to.toISOString())
             .order("purchase_date", { ascending: false });
           return error ? [] : data || [];
-        }
+        },
       );
       return data.value || [];
     } finally {
@@ -49,18 +49,15 @@ export const useFetchBoardExpenses = (period: any, boardId: any) => {
 
   const fetchAllExpenses = async (boardId: any) => {
     try {
-      const { data } = await useAsyncData(async () => {
-        const { data, error } = await supabase
-          .from("board_expenses")
-          .select()
-          .eq("board_id", boardId)
-          .order("purchase_date", { ascending: false });
-        return error ? [] : data;
-      });
-      return data.value;
+      const { data, error } = await supabase
+        .from("board_expenses")
+        .select()
+        .eq("board_id", boardId)
+        .order("purchase_date", { ascending: false });
+      return error ? [] : data;
     } catch (error) {
       console.error("Error fetching expenses:", error);
-      return;
+      return [];
     }
   };
 
@@ -75,7 +72,7 @@ export const useFetchBoardExpenses = (period: any, boardId: any) => {
   const expensesByUser = computed(() => {
     return boardMembers.value.reduce((acc: Record<string, any>, user: any) => {
       acc[user.user_id] = expenses.value.filter(
-        (expense: any) => expense.paid_by === user.user_id
+        (expense: any) => expense.paid_by === user.user_id,
       );
       return acc;
     }, {});
@@ -84,7 +81,7 @@ export const useFetchBoardExpenses = (period: any, boardId: any) => {
   const getUserExpenses = (userId: string) => {
     return (expensesByUser.value[userId] || []).reduce(
       (total: number, expense: any) => total + (expense.amount || 0),
-      0
+      0,
     );
   };
 
