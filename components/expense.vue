@@ -1,132 +1,104 @@
 <template>
   <div>
+    <ExpenseModal
+      v-model="isEdittingModalOpen"
+      :expense="expense"
+      :categories="categories"
+      @saved="emit('edited')"
+    />
+
+    <!-- Desktop Row -->
     <div
-      v-if="loading"
-      class="py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 flex items-center justify-center"
+      class="hidden lg:grid grid-cols-6 items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
     >
-      <USkeleton class="h-8 w-full" />
-    </div>
-    <div v-else>
-      <ExpenseModal
-        v-model="isEdittingModalOpen"
-        :expense="expense"
-        :categories="categories"
-        @saved="emit('edited')"
-      />
-
-      <!-- Desktop Version -->
-      <UCard class="hidden lg:block mb-5" :ui="{ body: { padding: 'p-4' } }">
-        <div class="grid grid-cols-6 items-center gap-4">
-          <!-- Icon and Category Section -->
-          <div class="col-span-2 flex items-center space-x-4">
-            <div
-              class="inline-flex items-center rounded-full p-3 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
-            >
-              <UIcon
-                :name="categoryDetails.icon"
-                :class="`text-${categoryDetails.color}-400 w-7 h-7`"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div
-                class="font-bold truncate max-w-[100px] overflow-hidden whitespace-nowrap"
-                :title="formatTitle(expense.title)"
-              >
-                {{ formatTitle(expense.title) }}
-              </div>
-              <div :class="`text-xs text-${categoryDetails.color}-400`">
-                {{ expense.category }}
-              </div>
-            </div>
+      <div class="col-span-2 flex items-center gap-3 min-w-0">
+        <div
+          class="inline-flex shrink-0 items-center rounded-full p-2.5 bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700"
+        >
+          <UIcon
+            :name="categoryDetails.icon"
+            :class="`text-${categoryDetails.color}-400 w-5 h-5`"
+          />
+        </div>
+        <div class="min-w-0">
+          <div
+            class="font-semibold text-sm truncate text-gray-900 dark:text-gray-100"
+            :title="formatTitle(expense.title)"
+          >
+            {{ formatTitle(expense.title) }}
           </div>
-
-          <div class="col-span-4 flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="mr-20 w-20 text-center">
-                {{ formatTitle(paidByNickname) }}
-              </div>
-
-              <div class="text-center">{{ formattedDate }}</div>
-            </div>
-
-            <!-- Dropdown -->
-            <div class="flex items-center gap-6">
-              <div class="font-medium">{{ formattedCurrency }}</div>
-
-              <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
-                <UButton
-                  color="white"
-                  variant="ghost"
-                  trailing-icon="i-heroicons-ellipsis-horizontal"
-                  :loading="isLoading"
-                />
-              </UDropdown>
-            </div>
+          <div :class="`text-xs text-${categoryDetails.color}-400`">
+            {{ expense.category }}
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <!-- Mobile Version -->
-      <div class="lg:hidden">
-        <UCard
-          class="mb-5"
-          :ui="{
-            header: { padding: 'py-1 px-4' },
-            body: { padding: 'py-4 px-4' },
-          }"
+      <div
+        class="col-span-2 flex items-center text-sm text-gray-500 dark:text-gray-400"
+      >
+        <span class="w-24 truncate">{{ formatTitle(paidByNickname) }}</span>
+        <span>{{ formattedDate }}</span>
+      </div>
+
+      <div class="col-span-2 flex items-center justify-end gap-3">
+        <span class="font-semibold text-sm text-gray-900 dark:text-gray-100">{{
+          formattedCurrency
+        }}</span>
+        <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+          <UButton
+            color="white"
+            variant="ghost"
+            trailing-icon="i-heroicons-ellipsis-horizontal"
+            :loading="isLoading"
+            size="xs"
+          />
+        </UDropdown>
+      </div>
+    </div>
+
+    <!-- Mobile Row -->
+    <div
+      class="lg:hidden flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+    >
+      <div class="flex items-center gap-3 min-w-0">
+        <div
+          class="inline-flex shrink-0 items-center rounded-full p-2 bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700"
         >
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="text-xs">{{ formattedDate }}</div>
-              <div>
-                <UDropdown
-                  :items="items"
-                  :popper="{ placement: 'bottom-start' }"
-                >
-                  <UButton
-                    color="white"
-                    variant="ghost"
-                    trailing-icon="i-heroicons-ellipsis-horizontal"
-                    :loading="isLoading"
-                  />
-                </UDropdown>
-              </div>
-            </div>
-          </template>
-          <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-              <div
-                class="inline-flex items-center rounded-full p-1 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 ring-1 ring-gray-300 dark:ring-gray-700 group-hover:ring-primary/50"
-              >
-                <UIcon
-                  :name="categoryDetails.icon"
-                  :class="`text-${categoryDetails.color}-400 w-6 h-6`"
-                />
-              </div>
-              <div>
-                <div
-                  class="font-bold text-xs truncate max-w-[200px] overflow-hidden whitespace-nowrap mb-2"
-                  :title="formatTitle(expense.title)"
-                >
-                  {{ formatTitle(expense.title) }}
-                </div>
-                <div :class="`text-xs text-${categoryDetails.color}-400`">
-                  {{ expense.category }}
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-col items-end">
-              <div
-                class="text-right text-xs font-semibold text-primary-500 mb-2"
-              >
-                {{ formattedCurrency }}
-              </div>
-              <div class="text-right text-xs">
-                {{ formatTitle(paidByNickname) }}
-              </div>
-            </div>
+          <UIcon
+            :name="categoryDetails.icon"
+            :class="`text-${categoryDetails.color}-400 w-4 h-4`"
+          />
+        </div>
+        <div class="min-w-0">
+          <div
+            class="text-sm font-semibold truncate text-gray-900 dark:text-gray-100"
+            :title="formatTitle(expense.title)"
+          >
+            {{ formatTitle(expense.title) }}
           </div>
-        </UCard>
+          <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ expense.category }} · {{ formattedDate }}
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1 shrink-0 ml-3">
+        <div class="text-right mr-1">
+          <div class="text-sm font-semibold text-primary-500">
+            {{ formattedCurrency }}
+          </div>
+          <div class="text-xs text-gray-400 dark:text-gray-500">
+            {{ formatTitle(paidByNickname) }}
+          </div>
+        </div>
+        <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+          <UButton
+            color="white"
+            variant="ghost"
+            trailing-icon="i-heroicons-ellipsis-horizontal"
+            :loading="isLoading"
+            size="xs"
+          />
+        </UDropdown>
       </div>
     </div>
   </div>
@@ -137,7 +109,6 @@ import { format } from "date-fns";
 
 const props = defineProps({
   expense: Object,
-  loading: Boolean,
   members: Object,
   categories: Array,
   currency: String,
@@ -157,7 +128,7 @@ const formattedDate = computed(() => {
 
 const paidByNickname = computed(() => {
   const member = props.members.find(
-    (member) => member.user_id === props.expense.paid_by
+    (member) => member.user_id === props.expense.paid_by,
   );
   return member ? member.user_nickname : "Unknown";
 });
@@ -165,7 +136,7 @@ const paidByNickname = computed(() => {
 const categoryDetails = computed(() => {
   if (props.categories && props.categories.length > 0) {
     const category = props.categories.find(
-      (cat) => cat.label === props.expense.category
+      (cat) => cat.label === props.expense.category,
     );
     return category
       ? {
@@ -228,5 +199,4 @@ const items = [
 const formatTitle = (title) => {
   return title.charAt(0).toUpperCase() + title.slice(1);
 };
-const route = useRoute();
 </script>

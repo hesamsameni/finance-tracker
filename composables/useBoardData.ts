@@ -1,8 +1,6 @@
 import { computed } from "vue";
 
-export function useBoardData(boardId: any, selectedView: any) {
-  const { dates } = useSelectedTimePeriod(selectedView);
-
+export function useBoardData(boardId: any, dateRange: any) {
   const {
     pending,
     refreshExpenses,
@@ -10,19 +8,10 @@ export function useBoardData(boardId: any, selectedView: any) {
     getUsers,
     expenses: { all: expenses, getUserExpenses },
     boardMembers: { all: boardMembers },
-  } = useFetchBoardExpenses(dates, boardId);
-
-  const {
-    discountsPending,
-    refreshDiscounts,
-    discounts: { all: discounts },
-  } = useFetchBoardDiscounts(boardId);
+  } = useFetchBoardExpenses(dateRange, boardId);
 
   const { categories: fetchedCategories, categoriesPending } =
     useFetchBoardCategories(boardId);
-
-  const { notes, notesPending, refreshNotes, addNote, updateNote, deleteNote } =
-    useFetchBoardNotes(boardId);
 
   const categoriesForChart = computed(() => {
     const categoryMap: Record<string, number> = {};
@@ -41,17 +30,8 @@ export function useBoardData(boardId: any, selectedView: any) {
     expenses,
     getUserExpenses,
     boardMembers,
-    discountsPending,
-    refreshDiscounts,
-    discounts,
     fetchedCategories,
     categoriesPending,
-    notes,
-    notesPending,
-    refreshNotes,
-    addNote,
-    updateNote,
-    deleteNote,
     categoriesForChart,
   };
 }
