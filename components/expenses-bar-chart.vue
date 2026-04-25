@@ -6,7 +6,8 @@
 
 <script setup>
 import { computed } from "vue";
-import { groupBy, sumBy } from "lodash";
+import _ from "lodash";
+const { groupBy, sumBy } = _;
 
 // Define the props expected by the component
 const props = defineProps({
@@ -58,7 +59,7 @@ function formatDate(dateStr) {
 
 const aggregatedData = computed(() => {
   const grouped = groupBy(props.expenses, (expense) =>
-    formatDate(expense.purchase_date)
+    formatDate(expense.purchase_date),
   );
 
   return Object.entries(grouped).map(([month, expenses]) => ({
@@ -74,7 +75,7 @@ const chartOptions = computed(() => ({
       const dataPoint = params[0];
       const { formattedCurrency } = useCurrency(
         dataPoint.value,
-        props.currency
+        props.currency,
       );
 
       return `${dataPoint.name}: ${formattedCurrency.value}`;
@@ -105,7 +106,7 @@ const chartOptions = computed(() => ({
         formatter: (params) => {
           const { formattedCurrency } = useCurrency(
             params.value,
-            props.currency
+            props.currency,
           );
           return formattedCurrency.value;
         },

@@ -68,7 +68,8 @@
 
 <script setup>
 import { computed, ref, watch } from "vue";
-import { groupBy, sumBy } from "lodash";
+import _ from "lodash";
+const { groupBy, sumBy } = _;
 import { useBreakpoints } from "@vueuse/core";
 
 const props = defineProps({
